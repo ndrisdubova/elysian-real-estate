@@ -13,9 +13,9 @@ export default function Login() {
     if (currentUser) navigate('/', { replace: true });
   }, [currentUser, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = loginUser(email.trim(), password);
+    const result = await loginUser(email.trim(), password);
     if (!result.success) {
       setError(result.message);
     } else {

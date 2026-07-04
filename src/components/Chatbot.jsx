@@ -168,7 +168,7 @@ export default function Chatbot() {
     }
 
     setChatSending(true);
-    addMessage({ firstName: 'Chat', lastName: 'Visitor', email: 'chatbot@elysian.com', subject, message: text });
+    await addMessage({ firstName: 'Chat', lastName: 'Visitor', email: 'chatbot@elysian.com', subject, message: text });
     try {
       await emailjs.send(
         'service_gkwnn4k',

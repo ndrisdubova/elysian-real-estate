@@ -7,7 +7,7 @@ import Chatbot from '../components/Chatbot';
 export default function Agents() {
   const [agents, setAgents] = useState([]);
 
-  useEffect(() => { setAgents(getAgents()); }, []);
+  useEffect(() => { getAgents().then(setAgents); }, []);
 
   const founders = agents.filter(a => a.type === 'founder');
   const experts = agents.filter(a => a.type === 'expert');

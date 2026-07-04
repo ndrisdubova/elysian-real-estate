@@ -2,24 +2,31 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, Outlet, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Building2, Users, MessageSquare, Mail, Settings, LogOut, Menu, X, ChevronDown } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
-import { getAdminSettings, saveAdminSettings } from '../../utils/storage';
+import { supabase } from '../../utils/supabaseClient';
+import {
+  getAdminSettings, saveAdminSettings,
+  getUnreadMessagesCount, markMessagesSeen,
+  getUnreadSubscribersCount, markSubscribersSeen,
+} from '../../utils/storage';
 
 const NAV = [
   { path: '/admin/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
   { path: '/admin/properties', label: 'Properties', Icon: Building2 },
   { path: '/admin/agents', label: 'Agents', Icon: Users },
-  { path: '/admin/messages', label: 'Messages', Icon: MessageSquare },
-  { path: '/admin/newsletter', label: 'Newsletter', Icon: Mail },
+  { path: '/admin/messages', label: 'Messages', Icon: MessageSquare, badgeKey: 'messages' },
+  { path: '/admin/newsletter', label: 'Newsletter', Icon: Mail, badgeKey: 'newsletter' },
 ];
 
 export default function AdminLayout() {
-  const { isAdmin, adminLogout } = useAdmin();
+  const { isAdmin, ready, adminLogout } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accentColor, setAccentColorState] = useState(() => getAdminSettings().accentColor);
   const [theme, setThemeState] = useState(() => getAdminSettings().theme);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadNewsletter, setUnreadNewsletter] = useState(0);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -30,10 +37,40 @@ export default function AdminLayout() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const refresh = () => {
+      getUnreadMessagesCount().then(setUnreadMessages);
+      getUnreadSubscribersCount().then(setUnreadNewsletter);
+    };
+    refresh();
+    window.addEventListener('messagesUpdated', refresh);
+    window.addEventListener('subscribersUpdated', refresh);
+    window.addEventListener('storage', refresh);
+
+    const channel = supabase
+      .channel('admin-notifications')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, refresh)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'subscribers' }, refresh)
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('messagesUpdated', refresh);
+      window.removeEventListener('subscribersUpdated', refresh);
+      window.removeEventListener('storage', refresh);
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/admin/messages') markMessagesSeen();
+    if (location.pathname === '/admin/newsletter') markSubscribersSeen();
+  }, [location.pathname]);
+
+  if (!ready) return null;
   if (!isAdmin) return <Navigate to="/admin/login" replace />;
 
-  const handleLogout = () => {
-    adminLogout();
+  const handleLogout = async () => {
+    await adminLogout();
     navigate('/admin/login');
   };
 
@@ -65,8 +102,9 @@ export default function AdminLayout() {
           </div>
 
           <nav className="flex-1 px-3 py-6 space-y-0.5">
-            {NAV.map(({ path, label, Icon }) => {
+            {NAV.map(({ path, label, Icon, badgeKey }) => {
               const active = location.pathname === path;
+              const unread = badgeKey === 'messages' ? unreadMessages : badgeKey === 'newsletter' ? unreadNewsletter : 0;
               return (
                 <Link
                   key={path}
@@ -79,6 +117,12 @@ export default function AdminLayout() {
                     <Icon className="w-4.5 h-4.5 w-5 h-5" />
                     {label}
                   </span>
+                  {unread > 0 && (
+                    <span className={`flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[11px] font-bold
+                      ${active ? 'bg-black/20 text-black' : 'bg-red-500 text-white'}`}>
+                      {unread > 99 ? '99+' : unread}
+                    </span>
+                  )}
                 </Link>
               );
             })}

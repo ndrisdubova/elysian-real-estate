@@ -20,7 +20,7 @@ export default function Signup() {
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = {};
     if (!form.name.trim()) errs.name = 'Enter your full name';
@@ -31,10 +31,16 @@ export default function Signup() {
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
-    const result = registerUser({ name: form.name, email: form.email, password: form.password });
+    const result = await registerUser({ name: form.name, email: form.email, password: form.password });
     if (!result.success) { showPopup(result.message); return; }
 
-    loginUser(form.email, form.password);
+    if (result.needsConfirmation) {
+      showPopup('Check your email to confirm your account, then log in.');
+      setTimeout(() => navigate('/login'), 2500);
+      return;
+    }
+
+    await loginUser(form.email, form.password);
     showPopup('Account created');
     setTimeout(() => navigate('/'), 1500);
   };

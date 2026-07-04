@@ -24,7 +24,7 @@ export default function Contact() {
     setError('');
     try {
       const fd = new FormData(formRef.current);
-      addMessage({
+      await addMessage({
         firstName: fd.get('first_name') || '',
         lastName: fd.get('last_name') || '',
         email: fd.get('email') || '',

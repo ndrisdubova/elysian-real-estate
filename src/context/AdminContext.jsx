@@ -1,27 +1,47 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../utils/supabaseClient';
 
 const AdminContext = createContext(null);
-const ADMIN_KEY = 'elysian_admin_session';
+
+async function checkIsAdmin(userId) {
+  const { data } = await supabase.from('profiles').select('is_admin').eq('id', userId).single();
+  return !!data?.is_admin;
+}
 
 export function AdminProvider({ children }) {
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem(ADMIN_KEY) === 'true');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [ready, setReady] = useState(false);
 
-  const adminLogin = (username, password) => {
-    if (username === 'admin@elysian.com' && password === 'admin123') {
-      localStorage.setItem(ADMIN_KEY, 'true');
-      setIsAdmin(true);
-      return true;
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setIsAdmin(session?.user ? await checkIsAdmin(session.user.id) : false);
+      setReady(true);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setIsAdmin(session?.user ? await checkIsAdmin(session.user.id) : false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const adminLogin = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) return false;
+    const admin = await checkIsAdmin(data.user.id);
+    if (!admin) {
+      await supabase.auth.signOut();
+      return false;
     }
-    return false;
+    setIsAdmin(true);
+    return true;
   };
 
-  const adminLogout = () => {
-    localStorage.removeItem(ADMIN_KEY);
+  const adminLogout = async () => {
+    await supabase.auth.signOut();
     setIsAdmin(false);
   };
 
   return (
-    <AdminContext.Provider value={{ isAdmin, adminLogin, adminLogout }}>
+    <AdminContext.Provider value={{ isAdmin, ready, adminLogin, adminLogout }}>
       {children}
     </AdminContext.Provider>
   );

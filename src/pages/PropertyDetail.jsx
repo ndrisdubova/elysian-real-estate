@@ -2,8 +2,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { MapPin, Bed, Bath, Ruler, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
-import { getProperties, addMessage, getFavorites, toggleFavorite } from '../utils/storage';
+import { getProperties, addMessage } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../hooks/useFavorites';
 import Toast from '../components/Toast';
 
 function Lightbox({ photos, index, onClose }) {
@@ -59,20 +60,25 @@ export default function PropertyDetail() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [lightbox, setLightbox] = useState(null);
-  const [favorites, setFavorites] = useState(getFavorites);
+  const { favorites, toggleFavorite } = useFavorites();
   const [heroIndex, setHeroIndex] = useState(0);
   const { currentUser } = useAuth();
   const [showLoginToast, setShowLoginToast] = useState(false);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProperties().then(list => { setProperties(list); setLoading(false); });
+  }, []);
 
   const handleToggleFav = () => {
     if (!currentUser) {
       setShowLoginToast(true);
       return;
     }
-    setFavorites(toggleFavorite(property.id));
+    toggleFavorite(property.id);
   };
 
-  const properties = getProperties();
   const property = properties.find(p => p.id === Number(id));
   const allPhotos = property ? [property.img, ...(property.extraPhotos || []).filter(Boolean)] : [];
 
@@ -83,6 +89,8 @@ export default function PropertyDetail() {
     const timer = setInterval(() => setHeroIndex(i => (i + 1) % allPhotos.length), 5000);
     return () => clearInterval(timer);
   }, [allPhotos.length, property?.id]);
+
+  if (loading) return null;
 
   if (!property) {
     return (
@@ -101,7 +109,7 @@ export default function PropertyDetail() {
       const fd = new FormData(formRef.current);
       const fullName = fd.get('first_name') || '';
       const nameParts = fullName.trim().split(' ');
-      addMessage({
+      await addMessage({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
         email: fd.get('email') || '',

@@ -8,11 +8,10 @@ export default function Dashboard() {
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
-    const props = getProperties();
-    const agents = getAgents();
-    const msgs = getMessages();
-    setStats({ props: props.length, agents: agents.length, msgs: msgs.length });
-    setRecent(msgs.slice(0, 6));
+    Promise.all([getProperties(), getAgents(), getMessages()]).then(([props, agents, msgs]) => {
+      setStats({ props: props.length, agents: agents.length, msgs: msgs.length });
+      setRecent(msgs.slice(0, 6));
+    });
   }, []);
 
   const cards = [

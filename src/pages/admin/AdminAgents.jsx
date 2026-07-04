@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Pencil, Trash2, X, Upload, Link2 } from 'lucide-react';
-import { getAgents, saveAgents } from '../../utils/storage';
+import { getAgents, addAgent, updateAgent, deleteAgent } from '../../utils/storage';
 
 const EMPTY_FORM = { name: '', role: '', bio: '', img: '', type: 'expert', languages: '', phone: '', email: '' };
 
@@ -13,9 +13,7 @@ export default function AdminAgents() {
   const [deleteId, setDeleteId] = useState(null);
   const fileRef = useRef(null);
 
-  useEffect(() => { setAgents(getAgents()); }, []);
-
-  const persist = (list) => { setAgents(list); saveAgents(list); };
+  useEffect(() => { getAgents().then(setAgents); }, []);
 
   const openAdd = () => {
     setForm({ ...EMPTY_FORM });
@@ -39,18 +37,21 @@ export default function AdminAgents() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (editId) {
-      persist(agents.map(a => a.id === editId ? { ...a, ...form } : a));
+      const updated = await updateAgent(editId, form);
+      setAgents(list => list.map(a => a.id === editId ? updated : a));
     } else {
-      persist([...agents, { id: Date.now(), ...form }]);
+      const created = await addAgent(form);
+      setAgents(list => [...list, created]);
     }
     setShowModal(false);
   };
 
-  const handleDelete = () => {
-    persist(agents.filter(a => a.id !== deleteId));
+  const handleDelete = async () => {
+    await deleteAgent(deleteId);
+    setAgents(list => list.filter(a => a.id !== deleteId));
     setDeleteId(null);
   };
 

@@ -2,25 +2,25 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Heart, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getFavorites, toggleFavorite, getProperties } from '../utils/storage';
+import { useFavorites } from '../hooks/useFavorites';
+import { getProperties } from '../utils/storage';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [favOpen, setFavOpen] = useState(false);
-  const [favorites, setFavorites] = useState(getFavorites);
+  const { favorites, toggleFavorite } = useFavorites();
+  const [allProperties, setAllProperties] = useState([]);
   const { currentUser, logoutUser } = useAuth();
   const location = useLocation();
   const profileRef = useRef(null);
 
   useEffect(() => {
-    const refresh = () => setFavorites(getFavorites());
-    window.addEventListener('favoritesUpdated', refresh);
-    return () => window.removeEventListener('favoritesUpdated', refresh);
+    getProperties().then(setAllProperties);
   }, []);
 
-  const savedProperties = getProperties().filter(p => favorites.includes(p.id));
+  const savedProperties = allProperties.filter(p => favorites.includes(p.id));
 
   const isHome = location.pathname === '/';
 
@@ -227,7 +227,7 @@ export default function Navbar() {
                       </Link>
                     </div>
                     <button
-                      onClick={() => setFavorites(toggleFavorite(p.id))}
+                      onClick={() => toggleFavorite(p.id)}
                       className="p-1 text-gray-300 hover:text-red-400 transition-colors self-start flex-shrink-0"
                       aria-label="Remove from saved"
                     >

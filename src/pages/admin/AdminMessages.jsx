@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Trash2, MessageSquare, X, Phone, Building2, Bot, Home } from 'lucide-react';
-import { getMessages, saveMessages } from '../../utils/storage';
+import { getMessages, deleteMessage } from '../../utils/storage';
 
 function InquiryBadge({ msg }) {
   if (msg.property) {
@@ -21,14 +21,13 @@ export default function AdminMessages() {
   const [messages, setMessages] = useState([]);
   const [selected, setSelected] = useState(null);
 
-  useEffect(() => { setMessages(getMessages()); }, []);
+  useEffect(() => { getMessages().then(setMessages); }, []);
 
-  const persist = (list) => { setMessages(list); saveMessages(list); };
-
-  const deleteMsg = (id, e) => {
+  const deleteMsg = async (id, e) => {
     e?.stopPropagation();
     if (selected?.id === id) setSelected(null);
-    persist(messages.filter(m => m.id !== id));
+    await deleteMessage(id);
+    setMessages(list => list.filter(m => m.id !== id));
   };
 
   const openMessage = (msg) => setSelected(msg);

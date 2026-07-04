@@ -1,112 +1,159 @@
-import { properties as defaultProperties } from '../data/properties';
+import { supabase } from './supabaseClient';
 
-const PROPS_KEY = 'elysian_properties';
-const AGENTS_KEY = 'elysian_agents';
-const MSGS_KEY = 'elysian_messages';
-const SUBS_KEY = 'elysian_subscribers';
 const ADMIN_SETTINGS_KEY = 'elysian_admin_settings';
+const MSGS_SEEN_KEY = 'elysian_messages_seen_at';
+const SUBS_SEEN_KEY = 'elysian_subscribers_seen_at';
 const DEFAULT_ADMIN_SETTINGS = { accentColor: '#C0A067', theme: 'light' };
 
-const DEFAULT_AGENTS = [
-  { id: 1, name: 'Michael Chen', role: 'Co-Founder & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80', bio: 'Visionary behind global luxury expansion.', type: 'founder', languages: 'English, Mandarin, French', phone: '+1 (310) 555-0123', email: 'michael.chen@elysian.com' },
-  { id: 2, name: 'Isabella Rossi', role: 'Co-Founder & Director', img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80', bio: 'Leads design & elite client experience.', type: 'founder', languages: 'English, Italian, Spanish', phone: '+1 (310) 555-0124', email: 'isabella.rossi@elysian.com' },
-  { id: 3, name: 'Daniel Carter', role: 'Investment Consultant', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', bio: 'Specialist in high-yield investment portfolios.', type: 'expert', languages: 'English, German', phone: '+1 (310) 555-0125', email: 'daniel.carter@elysian.com' },
-  { id: 4, name: 'Sophia Laurent', role: 'Architectural Advisor', img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80', bio: 'Expert in luxury design and architecture.', type: 'expert', languages: 'English, French', phone: '+1 (310) 555-0126', email: 'sophia.laurent@elysian.com' },
-  { id: 5, name: 'James Walker', role: 'Market Analyst', img: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=400&q=80', bio: 'Provides deep market intelligence and trends.', type: 'expert', languages: 'English', phone: '+1 (310) 555-0127', email: 'james.walker@elysian.com' },
-  { id: 6, name: 'Emily Stone', role: 'Luxury Property Strategist', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80', bio: 'Crafts bespoke property strategies for elite clients.', type: 'expert', languages: 'English, Portuguese', phone: '+1 (310) 555-0128', email: 'emily.stone@elysian.com' },
-  { id: 7, name: 'Lucas Meyer', role: 'Real Estate Legal Advisor', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80', bio: 'Navigates complex legal frameworks globally.', type: 'expert', languages: 'English, German, Dutch', phone: '+1 (310) 555-0129', email: 'lucas.meyer@elysian.com' },
-  { id: 8, name: 'Olivia Bennett', role: 'Client Relations Director', img: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?auto=format&fit=crop&w=400&q=80', bio: 'Curates white-glove experiences for every client.', type: 'expert', languages: 'English, Arabic', phone: '+1 (310) 555-0130', email: 'olivia.bennett@elysian.com' },
-];
+const mapProperty = (row) => ({ ...row, extraPhotos: row.extra_photos });
+const unmapProperty = ({ extraPhotos, ...fields }) => ({ ...fields, extra_photos: extraPhotos || [] });
 
-export function getProperties() {
-  try {
-    const stored = localStorage.getItem(PROPS_KEY);
-    if (stored) return JSON.parse(stored);
-    const seeded = defaultProperties.map(p => ({ ...p, extraPhotos: [] }));
-    localStorage.setItem(PROPS_KEY, JSON.stringify(seeded));
-    return seeded;
-  } catch {
-    return defaultProperties.map(p => ({ ...p, extraPhotos: [] }));
+export async function getProperties() {
+  const { data, error } = await supabase.from('properties').select('*').order('id');
+  if (error) { console.error(error); return []; }
+  return data.map(mapProperty);
+}
+
+export async function addProperty(fields) {
+  const { data, error } = await supabase.from('properties').insert(unmapProperty(fields)).select().single();
+  if (error) throw error;
+  return mapProperty(data);
+}
+
+export async function updateProperty(id, fields) {
+  const { data, error } = await supabase.from('properties').update(unmapProperty(fields)).eq('id', id).select().single();
+  if (error) throw error;
+  return mapProperty(data);
+}
+
+export async function deleteProperty(id) {
+  const { error } = await supabase.from('properties').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function getAgents() {
+  const { data, error } = await supabase.from('agents').select('*').order('id');
+  if (error) { console.error(error); return []; }
+  return data;
+}
+
+export async function addAgent(fields) {
+  const { data, error } = await supabase.from('agents').insert(fields).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateAgent(id, fields) {
+  const { data, error } = await supabase.from('agents').update(fields).eq('id', id).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteAgent(id) {
+  const { error } = await supabase.from('agents').delete().eq('id', id);
+  if (error) throw error;
+}
+
+const mapMessage = (row) => ({
+  id: row.id,
+  firstName: row.first_name,
+  lastName: row.last_name,
+  email: row.email,
+  phone: row.phone,
+  subject: row.subject,
+  message: row.message,
+  property: row.property,
+  propertyImg: row.property_img,
+  date: row.created_at,
+});
+
+export async function getMessages() {
+  const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data.map(mapMessage);
+}
+
+export async function addMessage(fields) {
+  const { error } = await supabase.from('messages').insert({
+    first_name: fields.firstName,
+    last_name: fields.lastName,
+    email: fields.email,
+    phone: fields.phone,
+    subject: fields.subject,
+    message: fields.message,
+    property: fields.property,
+    property_img: fields.propertyImg,
+  });
+  if (error) throw error;
+  window.dispatchEvent(new Event('messagesUpdated'));
+}
+
+export async function deleteMessage(id) {
+  const { error } = await supabase.from('messages').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function getUnreadMessagesCount() {
+  const seenAt = new Date(Number(localStorage.getItem(MSGS_SEEN_KEY) || 0)).toISOString();
+  const { count, error } = await supabase.from('messages').select('*', { count: 'exact', head: true }).gt('created_at', seenAt);
+  if (error) { console.error(error); return 0; }
+  return count || 0;
+}
+
+export function markMessagesSeen() {
+  localStorage.setItem(MSGS_SEEN_KEY, Date.now().toString());
+  window.dispatchEvent(new Event('messagesUpdated'));
+}
+
+export async function getFavorites(userId) {
+  if (!userId) return [];
+  const { data, error } = await supabase.from('favorites').select('property_id').eq('user_id', userId);
+  if (error) { console.error(error); return []; }
+  return data.map(r => r.property_id);
+}
+
+export async function toggleFavorite(userId, propertyId) {
+  if (!userId) return [];
+  const current = await getFavorites(userId);
+  const isFavorited = current.includes(propertyId);
+  if (isFavorited) {
+    await supabase.from('favorites').delete().eq('user_id', userId).eq('property_id', propertyId);
+  } else {
+    await supabase.from('favorites').insert({ user_id: userId, property_id: propertyId });
   }
-}
-
-export function saveProperties(props) {
-  localStorage.setItem(PROPS_KEY, JSON.stringify(props));
-}
-
-export function getAgents() {
-  try {
-    const stored = localStorage.getItem(AGENTS_KEY);
-    if (stored) return JSON.parse(stored);
-    localStorage.setItem(AGENTS_KEY, JSON.stringify(DEFAULT_AGENTS));
-    return DEFAULT_AGENTS;
-  } catch {
-    return DEFAULT_AGENTS;
-  }
-}
-
-export function saveAgents(agents) {
-  localStorage.setItem(AGENTS_KEY, JSON.stringify(agents));
-}
-
-export function getMessages() {
-  try {
-    const stored = localStorage.getItem(MSGS_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function saveMessages(msgs) {
-  localStorage.setItem(MSGS_KEY, JSON.stringify(msgs));
-}
-
-export function addMessage(fields) {
-  const msgs = getMessages();
-  const msg = { ...fields, id: Date.now().toString(), date: new Date().toISOString() };
-  msgs.unshift(msg);
-  saveMessages(msgs);
-}
-
-const FAVS_KEY = 'elysian_favorites';
-
-export function getFavorites() {
-  try {
-    const stored = localStorage.getItem(FAVS_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function toggleFavorite(id) {
-  const favs = getFavorites();
-  const updated = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
-  localStorage.setItem(FAVS_KEY, JSON.stringify(updated));
   window.dispatchEvent(new Event('favoritesUpdated'));
-  return updated;
+  return isFavorited ? current.filter(id => id !== propertyId) : [...current, propertyId];
 }
 
-export function getSubscribers() {
-  try {
-    const stored = localStorage.getItem(SUBS_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+const mapSubscriber = (row) => ({ id: row.id, email: row.email, date: row.created_at });
+
+export async function getSubscribers() {
+  const { data, error } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data.map(mapSubscriber);
 }
 
-export function saveSubscribers(subs) {
-  localStorage.setItem(SUBS_KEY, JSON.stringify(subs));
+export async function addSubscriber(email) {
+  const { error } = await supabase.from('subscribers').insert({ email });
+  if (error && error.code !== '23505') throw error; // ignore duplicate email
+  window.dispatchEvent(new Event('subscribersUpdated'));
 }
 
-export function addSubscriber(email) {
-  const subs = getSubscribers();
-  if (subs.some(s => s.email.toLowerCase() === email.toLowerCase())) return subs;
-  const updated = [{ id: Date.now().toString(), email, date: new Date().toISOString() }, ...subs];
-  saveSubscribers(updated);
-  return updated;
+export async function deleteSubscriber(id) {
+  const { error } = await supabase.from('subscribers').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function getUnreadSubscribersCount() {
+  const seenAt = new Date(Number(localStorage.getItem(SUBS_SEEN_KEY) || 0)).toISOString();
+  const { count, error } = await supabase.from('subscribers').select('*', { count: 'exact', head: true }).gt('created_at', seenAt);
+  if (error) { console.error(error); return 0; }
+  return count || 0;
+}
+
+export function markSubscribersSeen() {
+  localStorage.setItem(SUBS_SEEN_KEY, Date.now().toString());
+  window.dispatchEvent(new Event('subscribersUpdated'));
 }
 
 export function getAdminSettings() {

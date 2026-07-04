@@ -1,56 +1,50 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '../utils/supabaseClient';
 
-const USERS_KEY = 'elysian_users';
-const SESSION_KEY = 'elysian_currentUser';
-
-function getUsers() {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; } catch { return []; }
-}
-function saveUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-function getStoredUser() {
-  try {
-    const d = localStorage.getItem(SESSION_KEY);
-    return d ? JSON.parse(d) : null;
-  } catch { return null; }
-}
 function generateAvatar(name, email) {
   const display = (name || email.split('@')[0]).trim();
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(display)}&background=C0A067&color=fff&size=128&bold=true`;
 }
 
+function toSessionUser(user) {
+  if (!user) return null;
+  const name = user.user_metadata?.name || user.email.split('@')[0];
+  return { id: user.id, name, email: user.email, avatar: generateAvatar(name, user.email) };
+}
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(getStoredUser);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const registerUser = useCallback(({ name, email, password }) => {
-    const users = getUsers();
-    const norm = email.toLowerCase().trim();
-    if (users.some(u => u.email.toLowerCase() === norm)) {
-      return { success: false, message: 'An account with this email already exists.' };
-    }
-    const user = { name: name.trim(), email: norm, password, avatar: generateAvatar(name, email) };
-    users.push(user);
-    saveUsers(users);
-    return { success: true, user };
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentUser(toSessionUser(session?.user));
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUser(toSessionUser(session?.user));
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
-  const loginUser = useCallback((email, password) => {
-    const users = getUsers();
-    const norm = email.toLowerCase().trim();
-    const found = users.find(u => u.email.toLowerCase() === norm && u.password === password);
-    if (!found) return { success: false, message: 'Invalid email or password.' };
-    const session = { name: found.name, email: found.email, avatar: found.avatar };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    setCurrentUser(session);
-    return { success: true, user: session };
+  const registerUser = useCallback(async ({ name, email, password }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { data: { name: name.trim() } },
+    });
+    if (error) return { success: false, message: error.message };
+    return { success: true, user: toSessionUser(data.user), needsConfirmation: !data.session };
   }, []);
 
-  const logoutUser = useCallback(() => {
-    localStorage.removeItem(SESSION_KEY);
-    setCurrentUser(null);
+  const loginUser = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) return { success: false, message: 'Invalid email or password.' };
+    return { success: true, user: toSessionUser(data.user) };
+  }, []);
+
+  const logoutUser = useCallback(async () => {
+    await supabase.auth.signOut();
   }, []);
 
   return (

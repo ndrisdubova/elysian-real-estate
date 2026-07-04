@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Heart } from 'lucide-react';
-import { getProperties, getFavorites, toggleFavorite } from '../utils/storage';
+import { getProperties } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../hooks/useFavorites';
 import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
 import Toast from '../components/Toast';
@@ -25,13 +26,12 @@ export default function Properties() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
-  const [favorites, setFavorites] = useState([]);
+  const { favorites, toggleFavorite } = useFavorites();
   const [showLoginToast, setShowLoginToast] = useState(false);
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    setAllProperties(getProperties());
-    setFavorites(getFavorites());
+    getProperties().then(setAllProperties);
   }, []);
 
   const handleToggleFav = (e, id) => {
@@ -41,7 +41,7 @@ export default function Properties() {
       setShowLoginToast(true);
       return;
     }
-    setFavorites(toggleFavorite(id));
+    toggleFavorite(id);
   };
 
   const types = [...new Set(allProperties.map(p => p.type))];

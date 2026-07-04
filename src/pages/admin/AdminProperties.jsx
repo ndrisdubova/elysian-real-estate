@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Pencil, Trash2, X, Upload, Link2 } from 'lucide-react';
-import { getProperties, saveProperties } from '../../utils/storage';
+import { getProperties, addProperty, updateProperty, deleteProperty } from '../../utils/storage';
 
 const TYPES = ['Apartment', 'Villa', 'Penthouse', 'House', 'Studio'];
 
@@ -90,9 +90,7 @@ export default function AdminProperties() {
   const [extraPhotos, setExtraPhotos] = useState(['', '', '', '', '']);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => { setProperties(getProperties()); }, []);
-
-  const persist = (list) => { setProperties(list); saveProperties(list); };
+  useEffect(() => { getProperties().then(setProperties); }, []);
 
   const openAdd = () => {
     setForm({ ...EMPTY_FORM });
@@ -117,7 +115,7 @@ export default function AdminProperties() {
 
   const setExtra = (i, val) => setExtraPhotos(prev => { const u = [...prev]; u[i] = val; return u; });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const entry = {
       ...form,
@@ -125,15 +123,18 @@ export default function AdminProperties() {
       extraPhotos: extraPhotos.filter(Boolean),
     };
     if (editId) {
-      persist(properties.map(p => p.id === editId ? { ...p, ...entry } : p));
+      const updated = await updateProperty(editId, entry);
+      setProperties(list => list.map(p => p.id === editId ? updated : p));
     } else {
-      persist([...properties, { id: Date.now(), ...entry }]);
+      const created = await addProperty(entry);
+      setProperties(list => [...list, created]);
     }
     setShowModal(false);
   };
 
-  const handleDelete = () => {
-    persist(properties.filter(p => p.id !== deleteId));
+  const handleDelete = async () => {
+    await deleteProperty(deleteId);
+    setProperties(list => list.filter(p => p.id !== deleteId));
     setDeleteId(null);
   };
 

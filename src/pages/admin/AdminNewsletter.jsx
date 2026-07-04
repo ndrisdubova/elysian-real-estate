@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Mail, Trash2 } from 'lucide-react';
-import { getSubscribers, saveSubscribers } from '../../utils/storage';
+import { getSubscribers, deleteSubscriber } from '../../utils/storage';
 
 export default function AdminNewsletter() {
   const [subscribers, setSubscribers] = useState([]);
 
-  useEffect(() => { setSubscribers(getSubscribers()); }, []);
+  useEffect(() => { getSubscribers().then(setSubscribers); }, []);
 
-  const persist = (list) => { setSubscribers(list); saveSubscribers(list); };
-
-  const handleDelete = (id) => {
-    persist(subscribers.filter(s => s.id !== id));
+  const handleDelete = async (id) => {
+    await deleteSubscriber(id);
+    setSubscribers(list => list.filter(s => s.id !== id));
   };
 
   return (

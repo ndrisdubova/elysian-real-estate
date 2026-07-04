@@ -6,10 +6,10 @@ export default function NewsletterForm() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (email.trim()) {
-      addSubscriber(email.trim());
+      await addSubscriber(email.trim());
       setDone(true);
     }
   };
