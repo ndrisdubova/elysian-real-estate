@@ -3,7 +3,7 @@ import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
 
 const milestones = [
-  { year: '2005 - Foundation', desc: 'Elysian Estates was born with a vision for luxury real estate excellence.' },
+  { year: '2005 - Foundation', desc: 'Terra Estates was born with a vision for luxury real estate excellence.' },
   { year: '2010 - Global Expansion', desc: 'We expanded into international luxury markets.' },
   { year: '2018 - Elite Network', desc: 'Built a global network of elite property partners.' },
   { year: '2026 - Modern Luxury Era', desc: 'Redefining luxury real estate with innovation and design.' },
@@ -31,7 +31,7 @@ export default function About() {
       <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-10 items-center">
         <img className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85" alt="Luxury interior" />
         <div>
-          <h3 className="font-display text-3xl">The Elysian Standard.</h3>
+          <h3 className="font-display text-3xl">The Terra Standard.</h3>
           <p className="mt-4 text-gray-600">Our commitment to excellence defines every property we represent.</p>
           <div className="grid grid-cols-2 gap-6 mt-6">
             {stats.map(s => (
@@ -52,7 +52,7 @@ export default function About() {
 
           <div className="relative">
             {/* Center vertical line */}
-            <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-px bg-gradient-to-b from-[#C0A067]/0 via-[#C0A067]/60 to-[#C0A067]/0 hidden md:block" />
+            <div className="absolute left-6 md:left-1/2 -translate-x-px top-0 bottom-0 w-px bg-gradient-to-b from-[#C0A067]/0 via-[#C0A067]/60 to-[#C0A067]/0" />
 
             <div className="space-y-12 md:space-y-0">
               {milestones.map((m, i) => {
@@ -61,7 +61,7 @@ export default function About() {
                 return (
                   <div key={m.year} className="relative md:grid md:grid-cols-2 md:gap-10 md:items-center md:mb-16">
                     {/* Left card */}
-                    <div className={`${isLeft ? 'md:text-right' : 'md:order-last'}`}>
+                    <div className={`pl-14 md:pl-0 ${isLeft ? 'md:text-right' : 'md:order-last'}`}>
                       <div className={`bg-white/5 border border-white/10 rounded-2xl p-7 hover:border-[#C0A067]/40 hover:bg-white/8 transition-all duration-300 group
                         ${isLeft ? '' : 'md:ml-0'}`}>
                         <span className="inline-block font-display text-4xl font-bold text-[#C0A067]/30 group-hover:text-[#C0A067]/50 transition-colors duration-300 mb-3 leading-none">
@@ -73,7 +73,7 @@ export default function About() {
                     </div>
 
                     {/* Center dot */}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center justify-center z-10">
+                    <div className="absolute left-6 md:left-1/2 top-8 md:top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-10">
                       <div className="w-4 h-4 rounded-full bg-[#C0A067] ring-4 ring-[#C0A067]/20 ring-offset-4 ring-offset-[#0f0f0f]" />
                     </div>
 
@@ -109,7 +109,7 @@ export default function About() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <h3 className="font-display text-3xl font-bold mb-4">Elysian</h3>
+              <h3 className="font-display text-3xl font-bold mb-4">Terra</h3>
               <p className="text-gray-400 text-sm">The new standard in luxury real estate.</p>
               <h4 className="mt-8 mb-3 font-semibold">Join Our Newsletter</h4>
               <NewsletterForm />
@@ -127,7 +127,7 @@ export default function About() {
               <div className="space-y-4 text-gray-400 text-sm">
                 <p>123 Luxury Ave, Beverly Hills</p>
                 <p>+1 (310) 555-0123</p>
-                <p>inquiries@elysian.com</p>
+                <p>inquiries@terra.com</p>
               </div>
             </div>
             <div>
@@ -138,7 +138,7 @@ export default function About() {
             </div>
           </div>
           <div className="border-t border-white/10 mt-16 pt-6 text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} Elysian Estates. All Rights Reserved. | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-white">Ndris Dubova</a>
+            © {new Date().getFullYear()} Terra Estates. All Rights Reserved. | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-white">Ndris Dubova</a>
           </div>
         </div>
       </footer>

@@ -132,7 +132,7 @@ export default function Home() {
                 Explore Listings
               </Link>
               <Link to="/about" className="bg-transparent text-ivory border border-ivory/50 px-8 py-4 rounded-md text-lg font-semibold hover:bg-ivory hover:text-charcoal transition-all duration-300 text-center">
-                About Elysian
+                About Terra
               </Link>
             </div>
           </div>
@@ -234,9 +234,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
             {[
-              { img: IMAGES.a1, name: 'Alexander Cole', role: 'Founder & Principal Agent', desc: 'With two decades of experience, Alexander is a master of the luxury market.', email: 'alexander@elysian.com' },
-              { img: IMAGES.a2, name: 'Isabella Chen', role: 'Senior Partner', desc: "Isabella's global perspective connects discerning clients with their dream homes.", email: 'isabella@elysian.com' },
-              { img: IMAGES.a3, name: 'Marcus Thorne', role: 'Estates Director', desc: 'Marcus specializes in architectural masterpieces and historic estates.', email: 'marcus@elysian.com' },
+              { img: IMAGES.a1, name: 'Alexander Cole', role: 'Founder & Principal Agent', desc: 'With two decades of experience, Alexander is a master of the luxury market.', email: 'alexander@terra.com' },
+              { img: IMAGES.a2, name: 'Isabella Chen', role: 'Senior Partner', desc: "Isabella's global perspective connects discerning clients with their dream homes.", email: 'isabella@terra.com' },
+              { img: IMAGES.a3, name: 'Marcus Thorne', role: 'Estates Director', desc: 'Marcus specializes in architectural masterpieces and historic estates.', email: 'marcus@terra.com' },
             ].map((agent, i) => (
               <div key={i} className="text-center group" data-aos="fade-up" data-aos-delay={(i + 1) * 100}>
                 <div className="relative inline-block mb-6">
@@ -277,9 +277,9 @@ export default function Home() {
               slidesPerView={1}
             >
               {[
-                { quote: '"Working with Elysian was a revelation. Their attention to detail and market knowledge is simply unmatched."', name: 'Sarah & Tom Lawson', role: 'Buyers, Aspen Estate', img: IMAGES.t1 },
+                { quote: '"Working with Terra was a revelation. Their attention to detail and market knowledge is simply unmatched."', name: 'Sarah & Tom Lawson', role: 'Buyers, Aspen Estate', img: IMAGES.t1 },
                 { quote: '"The marketing for our penthouse was breathtaking. Alexander and his team secured a record price. Truly exceptional."', name: 'David Chen', role: 'Seller, Park Ave Penthouse', img: IMAGES.t2 },
-                { quote: '"As an international buyer, I needed a team I could trust. Elysian handled everything flawlessly."', name: 'Elena Rodriguez', role: 'Buyer, Miami Waterfront', img: IMAGES.t3 },
+                { quote: '"As an international buyer, I needed a team I could trust. Terra handled everything flawlessly."', name: 'Elena Rodriguez', role: 'Buyer, Miami Waterfront', img: IMAGES.t3 },
               ].map((t, i) => (
                 <SwiperSlide key={i}>
                   <div className="flex flex-col md:flex-row items-start">

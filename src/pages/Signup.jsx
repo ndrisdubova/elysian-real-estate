@@ -71,7 +71,7 @@ export default function Signup() {
       </div>
 
       <div className="flex flex-col items-center gap-5 z-10 w-full max-w-sm">
-        <h1 className="text-[42px] font-display tracking-[2px] text-charcoal m-0">Elysian</h1>
+        <h1 className="text-[42px] font-display tracking-[2px] text-charcoal m-0">Terra</h1>
 
         <form className="signup-box w-full" onSubmit={handleSubmit}>
           <h2 className="font-display text-center mb-6 text-[28px]">Create Account</h2>

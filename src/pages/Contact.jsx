@@ -8,7 +8,7 @@ import Chatbot from '../components/Chatbot';
 const contactCards = [
   { icon: '', title: 'Office', info: '25 Beverly Hills Avenue\nLos Angeles, California' },
   { icon: '', title: 'Phone', info: '+1 (310) 555-0147' },
-  { icon: '', title: 'Email', info: 'contact@elysian.com' },
+  { icon: '', title: 'Email', info: 'contact@terra.com' },
   { icon: '', title: 'Hours', info: 'Mon - Fri : 9AM - 7PM' },
 ];
 
@@ -61,7 +61,7 @@ export default function Contact() {
             Let's Find Your Dream Property.
           </h2>
           <p className="mt-6 text-gray-200 max-w-2xl mx-auto text-lg">
-            Connect with the Elysian team and discover exceptional luxury homes, elite agents, and premium real estate experiences.
+            Connect with the Terra team and discover exceptional luxury homes, elite agents, and premium real estate experiences.
           </p>
         </div>
       </section>
@@ -71,7 +71,7 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <div>
-            <p className="uppercase tracking-[0.3em] text-[#C0A067] font-semibold text-sm">Contact Elysian</p>
+            <p className="uppercase tracking-[0.3em] text-[#C0A067] font-semibold text-sm">Contact Terra</p>
             <h3 className="font-display text-5xl mt-4 leading-tight">We'd Love To Hear From You.</h3>
             <p className="mt-6 text-gray-600 leading-relaxed">
               Whether you're searching for your next luxury residence, investment property, or private consultation,
@@ -136,7 +136,7 @@ export default function Contact() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <h3 className="font-display text-3xl font-bold mb-4">Elysian</h3>
+              <h3 className="font-display text-3xl font-bold mb-4">Terra</h3>
               <p className="text-gray-400 text-sm">Elevating luxury real estate experiences worldwide.</p>
               <h4 className="mt-8 mb-3 font-semibold">Join Our Newsletter</h4>
               <NewsletterForm />
@@ -154,7 +154,7 @@ export default function Contact() {
               <div className="space-y-4 text-gray-400 text-sm">
                 <p>Los Angeles, California</p>
                 <p>+1 (310) 555-0147</p>
-                <p>contact@Elysian.com</p>
+                <p>contact@Terra.com</p>
               </div>
             </div>
             <div>
@@ -165,7 +165,7 @@ export default function Contact() {
             </div>
           </div>
           <div className="border-t border-white/10 mt-16 pt-6 text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} Elysian Estates. All Rights Reserved. | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-white">Ndris Dubova</a>
+            © {new Date().getFullYear()} Terra Estates. All Rights Reserved. | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-white">Ndris Dubova</a>
           </div>
         </div>
       </footer>

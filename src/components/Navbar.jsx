@@ -79,7 +79,7 @@ export default function Navbar() {
       >
         <div className="container mx-auto px-6 py-5 flex justify-between items-center">
           <Link to="/" className={`font-display text-3xl font-bold tracking-wide transition-colors duration-300 ${logoColor}`}>
-            Elysian
+            Terra
           </Link>
 
           {/* Desktop Nav */}

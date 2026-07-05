@@ -11,7 +11,6 @@ A luxury real estate web application built with React + Vite.
 - **AOS** (scroll animations)
 - **Swiper.js** (testimonial slider)
 - **EmailJS** (contact form)
-
 ## Pages
 
 | Route | Description |
@@ -28,7 +27,7 @@ A luxury real estate web application built with React + Vite.
 
 ```bash
 npm install
-npm run dev
+npm run dev 
 ```
 
 ## Features

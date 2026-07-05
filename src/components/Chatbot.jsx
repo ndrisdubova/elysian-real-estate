@@ -168,17 +168,17 @@ export default function Chatbot() {
     }
 
     setChatSending(true);
-    await addMessage({ firstName: 'Chat', lastName: 'Visitor', email: 'chatbot@elysian.com', subject, message: text });
+    await addMessage({ firstName: 'Chat', lastName: 'Visitor', email: 'chatbot@terra.com', subject, message: text });
     try {
       await emailjs.send(
         'service_gkwnn4k',
         'template_j7abcbp',
-        { first_name: 'Chat', last_name: 'Visitor', email: 'chatbot@elysian.com', subject, message: text },
+        { first_name: 'Chat', last_name: 'Visitor', email: 'chatbot@terra.com', subject, message: text },
         'yXRguh-oDkNVwjAWI'
       );
-      setChatMessages(m => [...m, { type: 'bot', text: "Thanks for reaching out! We've received your message and will get back to you shortly. You can also call us at +383 48 77 33 88 or through email info.elysian@gmail.com." }]);
+      setChatMessages(m => [...m, { type: 'bot', text: "Thanks for reaching out! We've received your message and will get back to you shortly. You can also call us at +383 48 77 33 88 or through email info.terra@gmail.com." }]);
     } catch {
-      setChatMessages(m => [...m, { type: 'bot', text: "Sorry, we couldn't send your message. Please try emailing us directly at contact@elysian.com." }]);
+      setChatMessages(m => [...m, { type: 'bot', text: "Sorry, we couldn't send your message. Please try emailing us directly at contact@terra.com." }]);
     } finally {
       setChatSending(false);
     }
@@ -192,7 +192,7 @@ export default function Chatbot() {
       <div id="chatbot-window" className={chatOpen ? 'is-visible' : ''}>
         <div className="chatbot-header">
           <div>
-            <h3 className="font-display text-xl font-bold">Elysian Concierge</h3>
+            <h3 className="font-display text-xl font-bold">Terra Concierge</h3>
             <p className="text-xs text-ivory/70">How can we help you today?</p>
           </div>
           <button onClick={() => setChatOpen(false)} aria-label="Close chat" className="bg-transparent border-none cursor-pointer">
@@ -204,7 +204,7 @@ export default function Chatbot() {
             <div key={i} className={`chat-message ${msg.type}`}>
               {msg.isWelcome ? (
                 <>
-                  Welcome to Elysian Estates. Ask me about properties, our services, or for buying advice.
+                  Welcome to Terra Estates. Ask me about properties, our services, or for buying advice.
                   <div className="text-xs text-charcoal/60 mt-3 pt-3 border-t border-charcoal/10">
                     Need to speak to a person?{' '}
                     <button type="button" onClick={goToContact} className="font-semibold text-soft-gold hover:text-dark-gold bg-transparent border-none p-0 cursor-pointer underline">Call Us</button> or{' '}

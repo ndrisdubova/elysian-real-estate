@@ -97,7 +97,7 @@ export default function AdminLayout() {
             ${open ? 'translate-x-0' : '-translate-x-full'}`}
         >
           <div className="px-6 py-7 border-b border-white/10">
-            <Link to="/" className="font-display text-2xl font-bold tracking-wide">Elysian</Link>
+            <Link to="/" className="font-display text-2xl font-bold tracking-wide">Terra</Link>
             <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-[0.25em]">Admin Panel</p>
           </div>
 

@@ -25,7 +25,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <h1 className="font-display text-4xl text-white mb-2">Elysian</h1>
+          <h1 className="font-display text-4xl text-white mb-2">Terra</h1>
           <p className="text-gray-500 text-xs uppercase tracking-[0.3em]">Admin Portal</p>
         </div>
 

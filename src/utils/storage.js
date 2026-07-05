@@ -1,8 +1,8 @@
 import { supabase } from './supabaseClient';
 
-const ADMIN_SETTINGS_KEY = 'elysian_admin_settings';
-const MSGS_SEEN_KEY = 'elysian_messages_seen_at';
-const SUBS_SEEN_KEY = 'elysian_subscribers_seen_at';
+const ADMIN_SETTINGS_KEY = 'terra_admin_settings';
+const MSGS_SEEN_KEY = 'terra_messages_seen_at';
+const SUBS_SEEN_KEY = 'terra_subscribers_seen_at';
 const DEFAULT_ADMIN_SETTINGS = { accentColor: '#C0A067', theme: 'light' };
 
 const mapProperty = (row) => ({ ...row, extraPhotos: row.extra_photos });

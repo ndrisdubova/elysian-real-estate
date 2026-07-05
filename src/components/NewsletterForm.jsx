@@ -26,7 +26,7 @@ export default function NewsletterForm() {
         </div>
         <div>
           <p className="text-white text-sm font-semibold leading-tight">You're subscribed!</p>
-          <p className="text-gray-400 text-xs mt-0.5">Thank you for joining Elysian.</p>
+          <p className="text-gray-400 text-xs mt-0.5">Thank you for joining Terra.</p>
         </div>
       </div>
     );

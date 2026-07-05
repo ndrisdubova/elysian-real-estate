@@ -209,7 +209,7 @@ export default function AdminAgents() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                <input {...field('email')} type="email" placeholder="name@elysian.com" className="w-full border border-gray-200 dark:border-white/10 dark:bg-[#0f0f0f] dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--admin-accent)] transition" />
+                <input {...field('email')} type="email" placeholder="name@terra.com" className="w-full border border-gray-200 dark:border-white/10 dark:bg-[#0f0f0f] dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--admin-accent)] transition" />
               </div>
 
               <div className="flex gap-3 pt-1">

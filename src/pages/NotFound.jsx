@@ -12,7 +12,7 @@ export default function NotFound() {
       <div className="absolute inset-0 bg-black/70" />
 
       <div className="relative z-10 text-center text-white max-w-2xl mx-auto">
-        <p className="uppercase tracking-[0.4em] text-sm text-[#C0A067] mb-4">Elysian Estates</p>
+        <p className="uppercase tracking-[0.4em] text-sm text-[#C0A067] mb-4">Terra Estates</p>
 
         <h1 className="font-display text-[10rem] md:text-[14rem] leading-none font-bold text-white/10 select-none">
           404

@@ -151,7 +151,7 @@ export default function Properties() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <div>
-              <h3 className="font-display text-3xl font-bold text-white mb-4">Elysian</h3>
+              <h3 className="font-display text-3xl font-bold text-white mb-4">Terra</h3>
               <p className="text-sm mb-6 max-w-xs">The new standard in luxury real estate.</p>
               <h4 className="text-lg font-semibold text-white mb-4">Join Our Newsletter</h4>
               <NewsletterForm />
@@ -169,7 +169,7 @@ export default function Properties() {
               <ul className="space-y-4 text-sm">
                 <li className="flex items-start"><MapPin className="w-5 h-5 mr-3 mt-0.5 text-[#C0A067] flex-shrink-0" /><span>123 Luxury Ave, Beverly Hills, CA 90210</span></li>
                 <li className="flex items-center"><Phone className="w-5 h-5 mr-3 text-[#C0A067]" /><span>+1 (310) 555-0123</span></li>
-                <li className="flex items-center"><Mail className="w-5 h-5 mr-3 text-[#C0A067]" /><span>inquiries@elysian.com</span></li>
+                <li className="flex items-center"><Mail className="w-5 h-5 mr-3 text-[#C0A067]" /><span>inquiries@terra.com</span></li>
               </ul>
             </div>
             <div>
@@ -180,7 +180,7 @@ export default function Properties() {
             </div>
           </div>
           <div className="border-t border-white/10 mt-16 pt-8 text-center text-sm">
-            <p>© {new Date().getFullYear()} Elysian Estates. All Rights Reserved | Designed with Elegance | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-[#C0A067]">Ndris Dubova</a></p>
+            <p>© {new Date().getFullYear()} Terra Estates. All Rights Reserved | Designed with Elegance | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-[#C0A067]">Ndris Dubova</a></p>
           </div>
         </div>
       </footer>

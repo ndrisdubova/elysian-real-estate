@@ -75,7 +75,7 @@ export default function Agents() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <h3 className="font-display text-3xl font-bold mb-4">Elysian</h3>
+              <h3 className="font-display text-3xl font-bold mb-4">Terra</h3>
               <p className="text-gray-400 text-sm">The new standard in luxury real estate.</p>
               <h4 className="mt-8 mb-3 font-semibold">Join Our Newsletter</h4>
               <NewsletterForm />
@@ -93,7 +93,7 @@ export default function Agents() {
               <div className="space-y-4 text-gray-400 text-sm">
                 <p>123 Luxury Ave, Beverly Hills</p>
                 <p>+1 (310) 555-0123</p>
-                <p>inquiries@elysian.com</p>
+                <p>inquiries@terra.com</p>
               </div>
             </div>
             <div>
@@ -104,7 +104,7 @@ export default function Agents() {
             </div>
           </div>
           <div className="border-t border-white/10 mt-16 pt-6 text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} Elysian Estates. All Rights Reserved. | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-white">Ndris Dubova</a>
+            © {new Date().getFullYear()} Terra Estates. All Rights Reserved. | Made by <a href="https://ndris-dubova.netlify.app/" className="hover:text-white">Ndris Dubova</a>
           </div>
         </div>
       </footer>
