@@ -32,9 +32,26 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (menuOpen) document.body.classList.add('overflow-hidden');
-    else document.body.classList.remove('overflow-hidden');
-    return () => document.body.classList.remove('overflow-hidden');
+    // `overflow: hidden` on body doesn't stop iOS Safari from rubber-banding the
+    // page behind a fixed overlay on a fast swipe. Pinning the body in place with
+    // `position: fixed` (and restoring the scroll offset on close) actually locks it.
+    if (menuOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (scrollY) window.scrollTo(0, -parseInt(scrollY, 10));
+    }
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+    };
   }, [menuOpen]);
 
   useEffect(() => {
@@ -254,37 +271,39 @@ export default function Navbar() {
       </div>
 
       {/* Full-screen Nav Overlay */}
-      <div className={`nav-overlay fixed inset-0 bg-charcoal z-[55] flex flex-col items-center justify-center space-y-10 ${menuOpen ? 'open' : ''}`}>
-        {[['/', 'Home'], ['/properties', 'Properties'], ['/agents', 'Agents'], ['/about', 'About'], ['/contact', 'Contact']].map(([path, label]) => (
-          <Link key={path} to={path} className="text-ivory text-4xl font-display" onClick={() => setMenuOpen(false)}>
-            {label}
-          </Link>
-        ))}
-        <button
-          onClick={() => { setMenuOpen(false); setFavOpen(true); }}
-          className="relative flex items-center gap-3 text-ivory text-4xl font-display"
-        >
-          <Heart className={`w-7 h-7 ${favorites.length > 0 ? 'fill-red-500 text-red-500' : ''}`} />
-          Saved
-          {favorites.length > 0 && (
-            <span className="absolute -top-2 -right-4 w-6 h-6 bg-soft-gold text-charcoal text-xs font-bold rounded-full flex items-center justify-center">
-              {favorites.length}
-            </span>
+      <div className={`nav-overlay fixed inset-0 bg-charcoal z-[55] overflow-y-auto overscroll-contain ${menuOpen ? 'open' : ''}`}>
+        <div className="min-h-full flex flex-col items-center justify-center gap-6 sm:gap-8 py-24 px-6">
+          {[['/', 'Home'], ['/properties', 'Properties'], ['/agents', 'Agents'], ['/about', 'About'], ['/contact', 'Contact']].map(([path, label]) => (
+            <Link key={path} to={path} className="text-ivory text-3xl sm:text-4xl font-display" onClick={() => setMenuOpen(false)}>
+              {label}
+            </Link>
+          ))}
+          <button
+            onClick={() => { setMenuOpen(false); setFavOpen(true); }}
+            className="relative flex items-center gap-3 text-ivory text-3xl sm:text-4xl font-display"
+          >
+            <Heart className={`w-6 h-6 sm:w-7 sm:h-7 ${favorites.length > 0 ? 'fill-red-500 text-red-500' : ''}`} />
+            Saved
+            {favorites.length > 0 && (
+              <span className="absolute -top-2 -right-4 w-6 h-6 bg-soft-gold text-charcoal text-xs font-bold rounded-full flex items-center justify-center">
+                {favorites.length}
+              </span>
+            )}
+          </button>
+          {currentUser ? (
+            <div className="auth-mobile-profile">
+              <img src={currentUser.avatar} alt={currentUser.name} className="auth-mobile-profile-img" />
+              <p className="auth-mobile-profile-name">{currentUser.name}</p>
+              <p className="auth-mobile-profile-email">{currentUser.email}</p>
+              <button className="auth-mobile-logout-btn" onClick={() => { logoutUser(); setMenuOpen(false); }}>Logout</button>
+            </div>
+          ) : (
+            <>
+              <Link to="/login" className="text-ivory text-3xl sm:text-4xl font-display" onClick={() => setMenuOpen(false)}>Login</Link>
+              <Link to="/signup" className="text-ivory text-3xl sm:text-4xl font-display" onClick={() => setMenuOpen(false)}>Signup</Link>
+            </>
           )}
-        </button>
-        {currentUser ? (
-          <div className="auth-mobile-profile">
-            <img src={currentUser.avatar} alt={currentUser.name} className="auth-mobile-profile-img" />
-            <p className="auth-mobile-profile-name">{currentUser.name}</p>
-            <p className="auth-mobile-profile-email">{currentUser.email}</p>
-            <button className="auth-mobile-logout-btn" onClick={() => { logoutUser(); setMenuOpen(false); }}>Logout</button>
-          </div>
-        ) : (
-          <>
-            <Link to="/login" className="text-ivory text-4xl font-display" onClick={() => setMenuOpen(false)}>Login</Link>
-            <Link to="/signup" className="text-ivory text-4xl font-display" onClick={() => setMenuOpen(false)}>Signup</Link>
-          </>
-        )}
+        </div>
       </div>
     </>
   );

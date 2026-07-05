@@ -9,15 +9,19 @@ export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     setError('');
+    setSubmitting(true);
     const ok = await adminLogin(username, password);
     if (ok) {
       navigate('/admin/dashboard');
     } else {
       setError('Invalid credentials. Please try again.');
+      setSubmitting(false);
     }
   };
 
@@ -42,6 +46,7 @@ export default function AdminLogin() {
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 className="w-full bg-[#252525] border border-white/10 text-white rounded-xl pl-11 pr-4 py-3.5 outline-none focus:border-[#C0A067] transition text-sm placeholder:text-gray-600"
+                disabled={submitting}
                 required
               />
             </div>
@@ -54,6 +59,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full bg-[#252525] border border-white/10 text-white rounded-xl pl-11 pr-4 py-3.5 outline-none focus:border-[#C0A067] transition text-sm placeholder:text-gray-600"
+                disabled={submitting}
                 required
               />
             </div>
@@ -64,9 +70,10 @@ export default function AdminLogin() {
 
             <button
               type="submit"
-              className="w-full bg-[#C0A067] text-black font-semibold py-3.5 rounded-xl hover:bg-[#a98952] transition text-sm mt-2"
+              disabled={submitting}
+              className="w-full bg-[#C0A067] text-black font-semibold py-3.5 rounded-xl hover:bg-[#a98952] transition text-sm mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In
+              {submitting ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
         </div>

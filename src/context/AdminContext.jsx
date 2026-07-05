@@ -3,9 +3,20 @@ import { supabase } from '../utils/supabaseClient';
 
 const AdminContext = createContext(null);
 
+// Login triggers a manual checkIsAdmin call *and* one from the onAuthStateChange
+// listener below for the same user at nearly the same time. Share one in-flight
+// request between them instead of making the user wait on two round-trips.
+const adminCheckCache = new Map();
+
 async function checkIsAdmin(userId) {
-  const { data } = await supabase.from('profiles').select('is_admin').eq('id', userId).single();
-  return !!data?.is_admin;
+  if (!adminCheckCache.has(userId)) {
+    const request = supabase.from('profiles').select('is_admin').eq('id', userId).single()
+      .then(({ data }) => !!data?.is_admin)
+      .catch(() => false);
+    adminCheckCache.set(userId, request);
+    request.finally(() => setTimeout(() => adminCheckCache.delete(userId), 2000));
+  }
+  return adminCheckCache.get(userId);
 }
 
 export function AdminProvider({ children }) {
@@ -13,12 +24,16 @@ export function AdminProvider({ children }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setIsAdmin(session?.user ? await checkIsAdmin(session.user.id) : false);
-      setReady(true);
-    });
+    // onAuthStateChange fires immediately with the current session on subscribe
+    // (INITIAL_SESSION), so a separate getSession() call here would run a second,
+    // independent admin check that can race this one and flip isAdmin/ready out of order.
+    let current = 0;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setIsAdmin(session?.user ? await checkIsAdmin(session.user.id) : false);
+      const request = ++current;
+      const admin = session?.user ? await checkIsAdmin(session.user.id) : false;
+      if (request !== current) return; // a newer auth event superseded this one
+      setIsAdmin(admin);
+      setReady(true);
     });
     return () => subscription.unsubscribe();
   }, []);

@@ -8,7 +8,7 @@ export default function ChatbotInfo() {
       <section className="pt-28 md:pt-36 pb-10 md:pb-16 px-4 md:px-6 text-center">
         <h1 className="font-display text-3xl sm:text-5xl">About the Terra Concierge</h1>
         <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
-          What our chatbot can do, how it works, and its limitations.
+          What our chatbot can do & how it works, and its limitations.
         </p>
       </section>
 
@@ -52,7 +52,7 @@ export default function ChatbotInfo() {
               <MessageCircle className="w-5 h-5 text-soft-gold" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-bold mb-2">How it works</h2>
+              <h2 className="font-display text-xl font-bold mb-2">How it works?</h2>
               <p className="text-gray-600 leading-relaxed">
                 The concierge is a rule-based assistant built into the site &mdash; it matches keywords in your
                 message against our listings and routes contact requests to our team. It isn't a general-purpose

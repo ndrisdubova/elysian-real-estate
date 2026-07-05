@@ -1,48 +1,75 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { MessageCircle, X, Send } from 'lucide-react';
-import { addMessage } from '../utils/storage';
-import { properties } from '../data/properties';
+import { addMessage, getProperties } from '../utils/storage';
 
 const priceToNumber = (price) => parseFloat(price.replace(/[^0-9.]/g, '')) * 1_000_000;
 const bedsToNumber = (beds) => parseInt(beds, 10);
 
-const uniqueTypes = [...new Set(properties.map(p => p.type))];
-const uniqueCities = [...new Set(properties.map(p => p.city))];
-const uniqueCountries = [...new Set(properties.map(p => p.country))];
-
 const featureKeywords = { pool: 'pool', garden: 'garden', gym: 'gym', terrace: 'terrace', beach: 'beach', view: 'view', parking: 'parking', cinema: 'cinema', wine: 'wine', concierge: 'concierge', security: 'security' };
 const resetPattern = /\breset\b|start over|new search|clear filters/;
+const STOPWORDS = new Set(['in', 'at', 'near', 'with', 'for', 'and', 'the', 'a', 'an', 'of', 'or', 'show', 'me', 'find', 'search', 'properties', 'property', 'please', 'looking', 'look', 'want', 'need', 'any', 'some', 'give', 'list', 'tell', 'about', 'have', 'has']);
 
-function parseQuery(query) {
-  const q = query.toLowerCase();
+const propertyHaystack = (p) => [p.title, p.type, p.city, p.country, p.price, p.beds, p.baths, p.size, p.description, ...(p.features || [])]
+  .filter(Boolean).join(' ').toLowerCase();
+
+// Local/alternate spellings for the same country, so a query in either form
+// matches regardless of which one is actually stored on the property.
+const COUNTRY_ALIASES = { kosova: 'kosovo' };
+const canonicalCountry = (value) => { const lower = value.toLowerCase(); return COUNTRY_ALIASES[lower] || lower; };
+const countryAliasesFor = (canon) => Object.entries(COUNTRY_ALIASES).filter(([, target]) => target === canon).map(([alias]) => alias);
+
+// Free-text admin fields (city/country) can carry inconsistent casing across
+// entries (e.g. "France" vs "france") — dedupe case-insensitively so the same
+// place isn't offered twice and every casing variant still matches as one.
+function dedupeCaseInsensitive(values) {
+  const seen = new Map();
+  for (const v of values) {
+    const key = v.toLowerCase();
+    if (!seen.has(key)) seen.set(key, v);
+  }
+  return [...seen.values()];
+}
+
+function parseQuery(query, uniqueTypes, uniqueCities, uniqueCountries) {
+  let q = query.toLowerCase();
   const parsed = {};
 
   const type = uniqueTypes.find(t => q.includes(t.toLowerCase()));
-  if (type) parsed.type = type;
+  if (type) { parsed.type = type; q = q.replace(type.toLowerCase(), ' '); }
 
   const city = uniqueCities.find(c => q.includes(c.toLowerCase()));
-  if (city) parsed.city = city;
+  if (city) { parsed.city = city; q = q.replace(city.toLowerCase(), ' '); }
 
-  const country = uniqueCountries.find(c => q.includes(c.toLowerCase()));
-  if (country) parsed.country = country;
+  let country, countryTerm;
+  for (const c of uniqueCountries) {
+    const terms = [c.toLowerCase(), ...countryAliasesFor(canonicalCountry(c))];
+    countryTerm = terms.find(t => q.includes(t));
+    if (countryTerm) { country = c; break; }
+  }
+  if (country) { parsed.country = country; q = q.replace(countryTerm, ' '); }
 
   const underMatch = q.match(/(?:under|below|less than|max|up to)\s*\$?\s*([\d.]+)\s*m/);
   const overMatch = q.match(/(?:over|above|at least|min)\s*\$?\s*([\d.]+)\s*m/);
   const genericMatch = q.match(/\$?\s*([\d.]+)\s*m/);
-  if (underMatch) parsed.maxPrice = parseFloat(underMatch[1]) * 1_000_000;
-  else if (overMatch) parsed.minPrice = parseFloat(overMatch[1]) * 1_000_000;
-  else if (genericMatch) parsed.maxPrice = parseFloat(genericMatch[1]) * 1_000_000;
+  if (underMatch) { parsed.maxPrice = parseFloat(underMatch[1]) * 1_000_000; q = q.replace(underMatch[0], ' '); }
+  else if (overMatch) { parsed.minPrice = parseFloat(overMatch[1]) * 1_000_000; q = q.replace(overMatch[0], ' '); }
+  else if (genericMatch) { parsed.maxPrice = parseFloat(genericMatch[1]) * 1_000_000; q = q.replace(genericMatch[0], ' '); }
 
   const bedsMatch = q.match(/(\d+)\s*\+?\s*bed/);
-  if (bedsMatch) parsed.minBeds = parseInt(bedsMatch[1], 10);
+  if (bedsMatch) { parsed.minBeds = parseInt(bedsMatch[1], 10); q = q.replace(bedsMatch[0], ' '); }
 
   const featureKey = Object.keys(featureKeywords).find(k => q.includes(k));
-  if (featureKey) parsed.feature = featureKeywords[featureKey];
+  if (featureKey) { parsed.feature = featureKeywords[featureKey]; q = q.replace(featureKey, ' '); }
 
-  if (/cheapest|lowest price|least expensive/.test(q)) parsed.sort = 'asc';
-  else if (/most expensive|highest price|priciest/.test(q)) parsed.sort = 'desc';
+  if (/cheapest|lowest price|least expensive/.test(q)) { parsed.sort = 'asc'; q = q.replace(/cheapest|lowest price|least expensive/, ' '); }
+  else if (/most expensive|highest price|priciest/.test(q)) { parsed.sort = 'desc'; q = q.replace(/most expensive|highest price|priciest/, ' '); }
+
+  // Anything left over (e.g. a misspelled/unlisted city, a neighborhood, a word from
+  // the description) still gets searched against every field of every property below.
+  const keywords = q.split(/[^a-z0-9²]+/i).map(w => w.trim()).filter(w => w.length > 2 && !STOPWORDS.has(w));
+  if (keywords.length) parsed.keywords = keywords;
 
   return parsed;
 }
@@ -72,15 +99,16 @@ function applyRelative(query, filters, lastResults) {
   return updated;
 }
 
-function matchProperties(filters) {
+function matchProperties(filters, properties) {
   let list = properties.filter(p => {
-    if (filters.type && p.type !== filters.type) return false;
-    if (filters.city && p.city !== filters.city) return false;
-    if (filters.country && p.country !== filters.country) return false;
+    if (filters.type && p.type.toLowerCase() !== filters.type.toLowerCase()) return false;
+    if (filters.city && p.city.toLowerCase() !== filters.city.toLowerCase()) return false;
+    if (filters.country && canonicalCountry(p.country) !== canonicalCountry(filters.country)) return false;
     if (filters.maxPrice != null && priceToNumber(p.price) > filters.maxPrice) return false;
     if (filters.minPrice != null && priceToNumber(p.price) < filters.minPrice) return false;
     if (filters.minBeds != null && bedsToNumber(p.beds) < filters.minBeds) return false;
     if (filters.feature && !p.features.some(f => f.toLowerCase().includes(filters.feature))) return false;
+    if (filters.keywords && !filters.keywords.every(k => propertyHaystack(p).includes(k))) return false;
     return true;
   });
 
@@ -101,8 +129,17 @@ export default function Chatbot() {
   const [activeAction, setActiveAction] = useState(null);
   const [lastFilters, setLastFilters] = useState({});
   const [lastResults, setLastResults] = useState([]);
+  const [properties, setProperties] = useState([]);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getProperties().then(setProperties);
+  }, []);
+
+  const uniqueTypes = useMemo(() => dedupeCaseInsensitive(properties.map(p => p.type)), [properties]);
+  const uniqueCities = useMemo(() => dedupeCaseInsensitive(properties.map(p => p.city)), [properties]);
+  const uniqueCountries = useMemo(() => dedupeCaseInsensitive(properties.map(p => p.country)), [properties]);
 
   useEffect(() => {
     if (chatOpen && messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -143,7 +180,7 @@ export default function Chatbot() {
       await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 500));
 
       const isReset = resetPattern.test(text.toLowerCase());
-      const parsed = parseQuery(text);
+      const parsed = parseQuery(text, uniqueTypes, uniqueCities, uniqueCountries);
       const baseFilters = isReset ? {} : lastFilters;
       const baseResults = isReset ? [] : lastResults;
       const relativeAdjusted = applyRelative(text, baseFilters, baseResults);
@@ -153,7 +190,7 @@ export default function Chatbot() {
         if (isReset) { setLastFilters({}); setLastResults([]); }
         setChatMessages(m => [...m, { type: 'bot', text: `Tell me a city (${uniqueCities.join(', ')}), a type (${uniqueTypes.join(', ')}), a budget like "under $5M", a bedroom count, or say "cheapest" / "most expensive".` }]);
       } else {
-        const matches = matchProperties(filters);
+        const matches = matchProperties(filters, properties);
         if (matches.length > 0) {
           setLastFilters(filters);
           setLastResults(matches);
@@ -219,8 +256,8 @@ export default function Chatbot() {
                       <img src={p.img} alt={p.title} />
                       <div className="chat-property-card-info">
                         <strong>{p.title}</strong>
-                        <span>{p.city}, {p.country} · {p.price}</span>
-                        <span>{p.beds} · {p.baths}</span>
+                        <span>{p.type} · {p.city}, {p.country} · {p.price}</span>
+                        <span>{p.beds} · {p.baths} · {p.size}</span>
                       </div>
                     </button>
                   ))}
