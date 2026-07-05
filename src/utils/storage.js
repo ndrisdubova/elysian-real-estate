@@ -8,50 +8,76 @@ const DEFAULT_ADMIN_SETTINGS = { accentColor: '#C0A067', theme: 'light' };
 const mapProperty = (row) => ({ ...row, extraPhotos: row.extra_photos });
 const unmapProperty = ({ extraPhotos, ...fields }) => ({ ...fields, extra_photos: extraPhotos || [] });
 
+let propertiesCache = null;
+let propertiesPromise = null;
+
 export async function getProperties() {
-  const { data, error } = await supabase.from('properties').select('*').order('id');
-  if (error) { console.error(error); return []; }
-  return data.map(mapProperty);
+  if (propertiesCache) return propertiesCache;
+  if (!propertiesPromise) {
+    propertiesPromise = supabase.from('properties').select('*').order('id').then(({ data, error }) => {
+      propertiesPromise = null;
+      if (error) { console.error(error); return []; }
+      propertiesCache = data.map(mapProperty);
+      return propertiesCache;
+    });
+  }
+  return propertiesPromise;
 }
 
 export async function addProperty(fields) {
   const { data, error } = await supabase.from('properties').insert(unmapProperty(fields)).select().single();
   if (error) throw error;
+  propertiesCache = null;
   return mapProperty(data);
 }
 
 export async function updateProperty(id, fields) {
   const { data, error } = await supabase.from('properties').update(unmapProperty(fields)).eq('id', id).select().single();
   if (error) throw error;
+  propertiesCache = null;
   return mapProperty(data);
 }
 
 export async function deleteProperty(id) {
   const { error } = await supabase.from('properties').delete().eq('id', id);
   if (error) throw error;
+  propertiesCache = null;
 }
 
+let agentsCache = null;
+let agentsPromise = null;
+
 export async function getAgents() {
-  const { data, error } = await supabase.from('agents').select('*').order('id');
-  if (error) { console.error(error); return []; }
-  return data;
+  if (agentsCache) return agentsCache;
+  if (!agentsPromise) {
+    agentsPromise = supabase.from('agents').select('*').order('id').then(({ data, error }) => {
+      agentsPromise = null;
+      if (error) { console.error(error); return []; }
+      agentsCache = data;
+      return agentsCache;
+    });
+  }
+  return agentsPromise;
 }
 
 export async function addAgent(fields) {
   const { data, error } = await supabase.from('agents').insert(fields).select().single();
   if (error) throw error;
+  agentsCache = null;
   return data;
 }
 
 export async function updateAgent(id, fields) {
   const { data, error } = await supabase.from('agents').update(fields).eq('id', id).select().single();
   if (error) throw error;
+  agentsCache = null;
   return data;
 }
 
 export async function deleteAgent(id) {
   const { error } = await supabase.from('agents').delete().eq('id', id);
   if (error) throw error;
+  agentsCache = null;
 }
 
 const mapMessage = (row) => ({
@@ -112,16 +138,13 @@ export async function getFavorites(userId) {
   return data.map(r => r.property_id);
 }
 
-export async function toggleFavorite(userId, propertyId) {
+export async function toggleFavorite(userId, propertyId, current) {
   if (!userId) return [];
-  const current = await getFavorites(userId);
   const isFavorited = current.includes(propertyId);
-  if (isFavorited) {
-    await supabase.from('favorites').delete().eq('user_id', userId).eq('property_id', propertyId);
-  } else {
-    await supabase.from('favorites').insert({ user_id: userId, property_id: propertyId });
-  }
-  window.dispatchEvent(new Event('favoritesUpdated'));
+  const { error } = isFavorited
+    ? await supabase.from('favorites').delete().eq('user_id', userId).eq('property_id', propertyId)
+    : await supabase.from('favorites').insert({ user_id: userId, property_id: propertyId });
+  if (error) throw error;
   return isFavorited ? current.filter(id => id !== propertyId) : [...current, propertyId];
 }
 

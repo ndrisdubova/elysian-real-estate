@@ -2,25 +2,39 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getFavorites, toggleFavorite as toggleFavoriteApi } from '../utils/storage';
 
+const FAVORITES_EVENT = 'favoritesUpdated';
+
 export function useFavorites() {
   const { currentUser } = useAuth();
   const [favorites, setFavorites] = useState([]);
 
-  const refresh = useCallback(() => {
-    getFavorites(currentUser?.id).then(setFavorites);
+  useEffect(() => {
+    if (!currentUser) { setFavorites([]); return; }
+    getFavorites(currentUser.id).then(setFavorites);
+
+    const onUpdate = (e) => {
+      if (e.detail?.userId === currentUser.id) setFavorites(e.detail.favorites);
+    };
+    window.addEventListener(FAVORITES_EVENT, onUpdate);
+    return () => window.removeEventListener(FAVORITES_EVENT, onUpdate);
   }, [currentUser?.id]);
 
-  useEffect(() => {
-    refresh();
-    window.addEventListener('favoritesUpdated', refresh);
-    return () => window.removeEventListener('favoritesUpdated', refresh);
-  }, [refresh]);
-
-  const toggleFavorite = useCallback(async (propertyId) => {
+  const toggleFavorite = useCallback((propertyId) => {
     if (!currentUser) return;
-    const updated = await toggleFavoriteApi(currentUser.id, propertyId);
+    const userId = currentUser.id;
+    const prev = favorites;
+    const updated = prev.includes(propertyId)
+      ? prev.filter(id => id !== propertyId)
+      : [...prev, propertyId];
+
     setFavorites(updated);
-  }, [currentUser]);
+    window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: { userId, favorites: updated } }));
+
+    toggleFavoriteApi(userId, propertyId, prev).catch(() => {
+      setFavorites(prev);
+      window.dispatchEvent(new CustomEvent(FAVORITES_EVENT, { detail: { userId, favorites: prev } }));
+    });
+  }, [currentUser, favorites]);
 
   return { favorites, toggleFavorite };
 }
