@@ -280,12 +280,12 @@ export default function Navbar() {
           ))}
           <button
             onClick={() => { setMenuOpen(false); setFavOpen(true); }}
-            className="relative flex items-center gap-3 text-ivory text-3xl sm:text-4xl font-display"
+            className="flex items-center gap-3 text-ivory text-3xl sm:text-4xl font-display"
           >
             <Heart className={`w-6 h-6 sm:w-7 sm:h-7 ${favorites.length > 0 ? 'fill-red-500 text-red-500' : ''}`} />
             Saved
             {favorites.length > 0 && (
-              <span className="absolute -top-2 -right-4 w-6 h-6 bg-soft-gold text-charcoal text-xs font-bold rounded-full flex items-center justify-center">
+              <span className="w-6 h-6 bg-soft-gold text-charcoal text-sm font-sans font-bold rounded-full flex items-center justify-center">
                 {favorites.length}
               </span>
             )}
