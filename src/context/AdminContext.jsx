@@ -24,9 +24,7 @@ export function AdminProvider({ children }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // onAuthStateChange fires immediately with the current session on subscribe
-    // (INITIAL_SESSION), so a separate getSession() call here would run a second,
-    // independent admin check that can race this one and flip isAdmin/ready out of order.
+    
     let current = 0;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const request = ++current;
@@ -35,6 +33,7 @@ export function AdminProvider({ children }) {
       setIsAdmin(admin);
       setReady(true);
     });
+
     return () => subscription.unsubscribe();
   }, []);
 
