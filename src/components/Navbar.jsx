@@ -257,7 +257,14 @@ export default function Navbar() {
           </div>
 
           {savedProperties.length > 0 && (
-            <div className="p-4 border-t">
+            <div className="p-4 border-t space-y-2">
+              <Link
+                to="/saved"
+                onClick={() => setFavOpen(false)}
+                className="block w-full text-center bg-soft-gold text-charcoal py-3 rounded-md text-sm font-semibold hover:bg-dark-gold transition-all duration-300"
+              >
+                View Saved Page
+              </Link>
               <Link
                 to="/properties"
                 onClick={() => setFavOpen(false)}
