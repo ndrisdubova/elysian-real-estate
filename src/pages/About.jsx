@@ -34,7 +34,7 @@ export default function About() {
 
       {/* The Standard */}
       <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-10 items-center">
-        <img className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85" alt="Luxury interior" />
+        <img className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=70" alt="Luxury interior" loading="lazy" decoding="async" />
         <div>
           <h3 className="font-display text-3xl">The Terra Standard.</h3>
           <p className="mt-4 text-gray-600">Our commitment to excellence defines every property we represent.</p>
@@ -97,11 +97,11 @@ export default function About() {
         <h3 className="font-display text-4xl text-center">Meet The Founders</h3>
         <div className="grid md:grid-cols-2 gap-10 mt-12">
           {[
-            { name: 'Michael Chen', role: 'Co-Founder & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e' },
-            { name: 'Isabella Rossi', role: 'Co-Founder & Director', img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1' },
+            { name: 'Michael Chen', role: 'Co-Founder & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=70' },
+            { name: 'Isabella Rossi', role: 'Co-Founder & Director', img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=70' },
           ].map(f => (
             <div key={f.name} className="bg-white p-6 rounded-xl shadow">
-              <img className="rounded-lg mb-4 w-full object-cover h-64" src={f.img} alt={f.name} />
+              <img className="rounded-lg mb-4 w-full object-cover h-64" src={f.img} alt={f.name} loading="lazy" decoding="async" />
               <h4 className="font-bold">{f.name}</h4>
               <p className="text-gray-600">{f.role}</p>
             </div>

@@ -120,7 +120,7 @@ export default function Home() {
       {/* Hero */}
       <section className="min-h-screen lg:min-h-[90vh] flex items-end relative overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src={IMAGES.hero} alt="Luxurious modern home exterior" className="w-full h-full object-cover object-center" />
+          <img src={IMAGES.hero} alt="Luxurious modern home exterior" fetchpriority="high" decoding="async" className="w-full h-full object-cover object-center" />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/60 to-transparent" />
         </div>
         <div className="container mx-auto px-6 pb-20 md:pb-32 lg:pb-40 relative z-10 text-left">
@@ -159,7 +159,7 @@ export default function Home() {
             ].map((p, i) => (
               <div key={i} className="rounded-lg overflow-hidden shadow-xl transform transition-all duration-500 hover:scale-[1.02] group" data-aos="fade-up" data-aos-delay={(i + 1) * 100}>
                 <div className="relative h-96">
-                  <img src={p.img} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img src={p.img} alt={p.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute bottom-4 left-4 right-4 p-5 bg-black/30 backdrop-blur-lg rounded-lg border border-white/20">
                     <h3 className="font-display text-2xl font-bold text-white mb-1">{p.title}</h3>
                     <div className="flex items-center text-soft-gold text-sm"><MapPin className="w-4 h-4 mr-2" /><span>{p.loc}</span></div>
@@ -214,8 +214,8 @@ export default function Home() {
               </div>
             </div>
             <div className="relative h-[500px] lg:h-[600px]" data-aos="fade-left">
-              <img src={IMAGES.service1} alt="Luxury interior" className="w-3/4 h-3/4 object-cover rounded-lg shadow-2xl" />
-              <img src={IMAGES.service2} alt="Architectural detail" className="absolute bottom-0 right-0 w-1/2 h-1/2 object-cover rounded-lg shadow-2xl border-8 border-light-gray" data-aos="zoom-in" data-aos-delay="300" />
+              <img src={IMAGES.service1} alt="Luxury interior" loading="lazy" decoding="async" className="w-3/4 h-3/4 object-cover rounded-lg shadow-2xl" />
+              <img src={IMAGES.service2} alt="Architectural detail" loading="lazy" decoding="async" className="absolute bottom-0 right-0 w-1/2 h-1/2 object-cover rounded-lg shadow-2xl border-8 border-light-gray" data-aos="zoom-in" data-aos-delay="300" />
             </div>
           </div>
         </div>
@@ -245,7 +245,7 @@ export default function Home() {
             ].map((agent, i) => (
               <div key={i} className="text-center group" data-aos="fade-up" data-aos-delay={(i + 1) * 100}>
                 <div className="relative inline-block mb-6">
-                  <img src={agent.img} alt={agent.name} className="w-64 h-64 object-cover rounded-full object-top" />
+                  <img src={agent.img} alt={agent.name} loading="lazy" decoding="async" className="w-64 h-64 object-cover rounded-full object-top" />
                   <div className="absolute inset-0 rounded-full border-2 border-soft-gold/50 scale-105 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:border-soft-gold" />
                 </div>
                 <h3 className="font-display text-2xl font-bold text-charcoal">{agent.name}</h3>
@@ -292,7 +292,7 @@ export default function Home() {
                     <div className="md:ml-4">
                       <p className="font-display text-2xl lg:text-3xl text-charcoal italic mb-6">{t.quote}</p>
                       <div className="flex items-center">
-                        <img src={t.img} alt={t.name} className="w-14 h-14 rounded-full object-cover" />
+                        <img src={t.img} alt={t.name} loading="lazy" decoding="async" className="w-14 h-14 rounded-full object-cover" />
                         <div className="ml-4">
                           <h4 className="text-xl font-semibold text-charcoal">{t.name}</h4>
                           <p className="text-charcoal/70">{t.role}</p>

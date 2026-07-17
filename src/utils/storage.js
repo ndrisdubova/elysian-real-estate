@@ -5,7 +5,20 @@ const MSGS_SEEN_KEY = 'terra_messages_seen_at';
 const SUBS_SEEN_KEY = 'terra_subscribers_seen_at';
 const DEFAULT_ADMIN_SETTINGS = { accentColor: '#C0A067', theme: 'light' };
 
-const mapProperty = (row) => ({ ...row, extraPhotos: row.extra_photos });
+// Serve smaller, modern-format images by appending sizing params to Unsplash
+// URLs at read time (no DB change). Non-Unsplash URLs and URLs that already have
+// params are left untouched, so future uploads (e.g. Supabase Storage) are safe.
+function optimizeImg(url, w = 800) {
+  if (typeof url !== 'string' || !url.includes('images.unsplash.com')) return url;
+  if (url.includes('?')) return url;
+  return `${url}?auto=format&fit=crop&w=${w}&q=70`;
+}
+
+const mapProperty = (row) => ({
+  ...row,
+  img: optimizeImg(row.img),
+  extraPhotos: (row.extra_photos || []).map((u) => optimizeImg(u)),
+});
 const unmapProperty = ({ extraPhotos, ...fields }) => ({ ...fields, extra_photos: extraPhotos || [] });
 
 let propertiesCache = null;

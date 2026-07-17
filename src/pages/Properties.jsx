@@ -18,7 +18,7 @@ function PropertyCardImage({ images, alt }) {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  return <img className="w-full h-[260px] object-cover" src={images[index]} alt={alt} />;
+  return <img className="w-full h-[260px] object-cover" src={images[index]} alt={alt} loading="lazy" decoding="async" width="400" height="260" />;
 }
 
 export default function Properties() {

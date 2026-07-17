@@ -178,7 +178,7 @@ export default function PropertyDetail() {
       />
       {/* Hero Image */}
       <div className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden">
-        <img src={allPhotos[heroIndex]} alt={property.title} className="w-full h-full object-cover" />
+        <img src={allPhotos[heroIndex]} alt={property.title} fetchpriority="high" decoding="async" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
         <button
@@ -227,7 +227,7 @@ export default function PropertyDetail() {
                 onClick={() => setLightbox(i + 1)}
                 className="flex-shrink-0 w-28 h-20 md:w-36 md:h-24 rounded-xl overflow-hidden hover:opacity-90 transition ring-2 ring-transparent hover:ring-[#C0A067]"
               >
-                <img src={photo} alt="" className="w-full h-full object-cover" />
+                <img src={photo} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>

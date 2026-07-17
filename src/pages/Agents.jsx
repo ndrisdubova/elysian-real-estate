@@ -33,7 +33,7 @@ export default function Agents() {
         <div className="grid md:grid-cols-2 gap-10 mt-12">
           {founders.map(f => (
             <div key={f.id} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
-              <img className="rounded-full mx-auto mb-4 w-28 h-28 object-cover" src={f.img} alt={f.name} />
+              <img className="rounded-full mx-auto mb-4 w-28 h-28 object-cover" src={f.img} alt={f.name} loading="lazy" decoding="async" />
               <h4 className="font-bold text-lg">{f.name}</h4>
               <p className="text-gray-600">{f.role}</p>
               <p className="text-sm text-gray-500 mt-2">{f.bio}</p>
@@ -53,13 +53,13 @@ export default function Agents() {
             </p>
           </div>
           <div>
-            <img className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80" alt="Team" />
+            <img className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80" alt="Team" loading="lazy" decoding="async" />
           </div>
         </div>
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 mt-16">
           {experts.map(e => (
             <div key={e.id} className="p-6 bg-gray-50 rounded-xl shadow hover:shadow-lg transition text-center">
-              <img className="w-20 h-20 rounded-full mx-auto mb-4 object-cover" src={e.img} alt={e.name} />
+              <img className="w-20 h-20 rounded-full mx-auto mb-4 object-cover" src={e.img} alt={e.name} loading="lazy" decoding="async" />
               <h4 className="font-bold">{e.name}</h4>
               <p className="text-gray-600">{e.role}</p>
             </div>
