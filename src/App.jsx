@@ -1,10 +1,13 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { AdminProvider } from './context/AdminContext';
 import Navbar from './components/Navbar';
 import ScrollToTop from './components/ScrollToTop';
 import PageLoader from './components/PageLoader';
+import Maintenance from './components/Maintenance';
+import { getMaintenanceMode } from './utils/storage';
 
 const Home = lazy(() => import('./pages/Home'));
 const Properties = lazy(() => import('./pages/Properties'));
@@ -30,6 +33,17 @@ function Layout() {
   const noNav = ['/login', '/signup'];
   const isAdmin = location.pathname.startsWith('/admin');
   const showNav = !noNav.includes(location.pathname) && !isAdmin;
+
+  // Maintenance mode: fetched optimistically (site renders immediately for the
+  // normal case). If it comes back enabled, non-admin visitors get the
+  // maintenance page. Admin routes always bypass so the team can toggle it off.
+  const [maintenance, setMaintenance] = useState(false);
+  useEffect(() => {
+    if (isAdmin) return; // admins never get gated
+    getMaintenanceMode().then(setMaintenance);
+  }, [isAdmin]);
+
+  if (maintenance && !isAdmin) return <Maintenance />;
 
   return (
     <>
@@ -69,12 +83,14 @@ function Layout() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AdminProvider>
-        <BrowserRouter>
-          <Layout />
-        </BrowserRouter>
-      </AdminProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <AdminProvider>
+          <BrowserRouter>
+            <Layout />
+          </BrowserRouter>
+        </AdminProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }

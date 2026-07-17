@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
+import Seo from '../components/Seo';
 
 const milestones = [
   { year: '2005 - Foundation', desc: 'Terra Estates was born with a vision for luxury real estate excellence.' },
@@ -19,6 +20,10 @@ const stats = [
 export default function About() {
   return (
     <>
+      <Seo
+        title="About Us"
+        description="Terra Estates is a luxury real-estate agency delivering a full-service concierge experience — from private viewings to bespoke marketing and expert negotiation."
+      />
       {/* Hero */}
       <section className="pt-28 text-center px-6">
         <h2 className="font-display text-5xl md:text-6xl">A Legacy of Luxury.</h2>

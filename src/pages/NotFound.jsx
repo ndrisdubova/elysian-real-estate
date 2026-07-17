@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Home, ArrowLeft } from 'lucide-react';
 import Chatbot from '../components/Chatbot';
+import Seo from '../components/Seo';
 
 export default function NotFound() {
   return (
     <>
+    <Seo title="Page Not Found" noindex />
     <div
       className="min-h-screen flex items-center justify-center px-6 bg-cover bg-center relative"
       style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1974&auto=format&fit=crop')" }}

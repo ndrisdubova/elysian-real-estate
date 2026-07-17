@@ -7,6 +7,7 @@ import 'swiper/css/pagination';
 import { MapPin, Bed, Bath, Ruler, Key, Globe, Quote, ChevronUp } from 'lucide-react';
 import Footer from '../components/Footer';
 import Chatbot from '../components/Chatbot';
+import Seo from '../components/Seo';
 
 const IMAGES = {
   hero: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/7.png',
@@ -110,6 +111,10 @@ export default function Home() {
 
   return (
     <>
+      <Seo
+        title="Luxury Real Estate & Prestige Homes"
+        description="Terra Estates curates the world’s most prestigious properties — luxury homes, villas and penthouses in the finest locations. Define your legacy with us."
+      />
       <div id="scroll-indicator" style={{ width: '0%' }} />
 
       {/* Hero */}

@@ -4,6 +4,7 @@ import emailjs from '@emailjs/browser';
 import { addMessage } from '../utils/storage';
 import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
+import Seo from '../components/Seo';
 
 const contactCards = [
   { icon: '', title: 'Office', info: '25 Beverly Hills Avenue\nLos Angeles, California' },
@@ -49,6 +50,10 @@ export default function Contact() {
 
   return (
     <>
+      <Seo
+        title="Contact Us"
+        description="Get in touch with Terra Estates. Whether you’re buying, selling or seeking advice, our team is ready to guide you. Call +383 48 77 33 88 or email info.terra@gmail.com."
+      />
       {/* Hero */}
       <section
         className="pt-36 pb-24 px-6 bg-cover bg-center relative"

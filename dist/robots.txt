@@ -1,0 +1,11 @@
+# Terra Estates — robots.txt
+User-agent: *
+Allow: /
+
+# Keep the admin panel and auth pages out of search results
+Disallow: /admin
+Disallow: /login
+Disallow: /signup
+
+# Replace the domain below with your real production domain
+Sitemap: https://www.terraestates.com/sitemap.xml

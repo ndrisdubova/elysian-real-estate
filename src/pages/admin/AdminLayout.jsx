@@ -15,6 +15,7 @@ const NAV = [
   { path: '/admin/agents', label: 'Agents', Icon: Users },
   { path: '/admin/messages', label: 'Messages', Icon: MessageSquare, badgeKey: 'messages' },
   { path: '/admin/newsletter', label: 'Newsletter', Icon: Mail, badgeKey: 'newsletter' },
+  { path: '/admin/settings', label: 'Settings', Icon: Settings },
 ];
 
 export default function AdminLayout() {

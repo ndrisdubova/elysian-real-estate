@@ -6,6 +6,7 @@ import { getProperties, addMessage } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
 import Toast from '../components/Toast';
+import Seo from '../components/Seo';
 
 function Lightbox({ photos, index, onClose }) {
   const [current, setCurrent] = useState(index);
@@ -143,6 +144,12 @@ export default function PropertyDetail() {
 
   return (
     <div className="bg-[#f7f7f7] min-h-screen">
+      <Seo
+        title={`${property.title} — ${property.type} in ${property.city}`}
+        description={`${property.price} · ${property.beds} · ${property.baths} · ${property.size}. ${property.description || ''}`}
+        image={property.img}
+        type="article"
+      />
       {/* Hero Image */}
       <div className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden">
         <img src={allPhotos[heroIndex]} alt={property.title} className="w-full h-full object-cover" />

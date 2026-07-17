@@ -7,6 +7,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
 import Toast from '../components/Toast';
+import Seo from '../components/Seo';
 
 function PropertyCardImage({ images, alt }) {
   const [index, setIndex] = useState(0);
@@ -60,6 +61,10 @@ export default function Properties() {
 
   return (
     <>
+      <Seo
+        title="Luxury Properties for Sale"
+        description="Explore premium apartments, penthouses, villas and estates for sale across the world’s most iconic destinations with Terra Estates."
+      />
       {/* Hero */}
       <section className="pt-28 md:pt-36 pb-10 md:pb-16 px-4 md:px-6 text-center">
         <h2 className="font-display text-3xl sm:text-5xl md:text-6xl">Discover Luxury Properties</h2>

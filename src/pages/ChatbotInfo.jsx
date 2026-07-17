@@ -1,10 +1,15 @@
 import { Link } from 'react-router-dom';
 import { MessageCircle, Search, Mail, ShieldAlert } from 'lucide-react';
 import Chatbot from '../components/Chatbot';
+import Seo from '../components/Seo';
 
 export default function ChatbotInfo() {
   return (
     <div className="bg-[#f7f7f7] min-h-screen">
+      <Seo
+        title="Concierge Assistant"
+        description="Meet the Terra Estates virtual concierge — get instant help finding properties, answers about buying and financing, and book a viewing any time."
+      />
       <section className="pt-28 md:pt-36 pb-10 md:pb-16 px-4 md:px-6 text-center">
         <h1 className="font-display text-3xl sm:text-5xl">About the Terra Concierge</h1>
         <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-sm md:text-base">

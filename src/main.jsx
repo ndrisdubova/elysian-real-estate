@@ -14,8 +14,7 @@ window.addEventListener('load', () => {
   forceScrollTop();
   requestAnimationFrame(forceScrollTop);
 });
-// iOS Safari restores pages from bfcache without re-running this module,
-// so catch that case explicitly.
+
 window.addEventListener('pageshow', (e) => {
   if (e.persisted) forceScrollTop();
 });

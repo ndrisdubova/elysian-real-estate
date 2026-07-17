@@ -179,6 +179,29 @@ export function markSubscribersSeen() {
   window.dispatchEvent(new Event('subscribersUpdated'));
 }
 
+// --- maintenance mode (global, shared across all visitors) -----------------
+// Backed by a single-row `app_settings` table (id = 1). Readable by everyone
+// so the public site knows whether to show the maintenance page; writable only
+// by admins (enforced by Supabase RLS).
+
+export async function getMaintenanceMode() {
+  const { data, error } = await supabase
+    .from('app_settings')
+    .select('maintenance_mode')
+    .eq('id', 1)
+    .maybeSingle();
+  if (error) { console.error(error); return false; }
+  return !!data?.maintenance_mode;
+}
+
+export async function setMaintenanceMode(enabled) {
+  const { error } = await supabase
+    .from('app_settings')
+    .update({ maintenance_mode: enabled, updated_at: new Date().toISOString() })
+    .eq('id', 1);
+  if (error) throw error;
+}
+
 export function getAdminSettings() {
   try {
     const stored = localStorage.getItem(ADMIN_SETTINGS_KEY);

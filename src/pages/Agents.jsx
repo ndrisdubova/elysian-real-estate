@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getAgents } from '../utils/storage';
 import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
+import Seo from '../components/Seo';
 
 export default function Agents() {
   const [agents, setAgents] = useState([]);
@@ -14,6 +15,10 @@ export default function Agents() {
 
   return (
     <>
+      <Seo
+        title="Meet Our Agents"
+        description="A hand-picked network of world-class real-estate experts, founders and advisors ready to guide you through your luxury property journey."
+      />
       {/* Hero */}
       <section className="pt-28 text-center px-6">
         <h2 className="font-display text-5xl md:text-6xl">Meet Our Elite Network</h2>

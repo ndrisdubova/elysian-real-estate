@@ -134,3 +134,28 @@ insert into agents (name, role, type, img, bio, languages, phone, email) values
 -- 1. Create your admin account: Dashboard -> Authentication -> Add User (use your real admin email/password).
 -- 2. Copy that user's UUID from the Authentication table, then run:
 --    update profiles set is_admin = true where id = 'PASTE-UUID-HERE';
+
+-- ---------------------------------------------------------------------------
+-- Maintenance mode: single-row global settings table.
+-- Readable by everyone (public site checks it); writable only by admins.
+-- ---------------------------------------------------------------------------
+create table if not exists app_settings (
+  id int primary key default 1,
+  maintenance_mode boolean not null default false,
+  updated_at timestamptz default now(),
+  constraint app_settings_single_row check (id = 1)
+);
+
+insert into app_settings (id, maintenance_mode)
+  values (1, false)
+  on conflict (id) do nothing;
+
+alter table app_settings enable row level security;
+
+create policy "app_settings readable by all"
+  on app_settings for select using (true);
+
+create policy "app_settings writable by admins"
+  on app_settings for update using (
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.is_admin = true)
+  );
