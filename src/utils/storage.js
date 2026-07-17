@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { getSupabase } from './supabaseClient';
 
 const ADMIN_SETTINGS_KEY = 'terra_admin_settings';
 const MSGS_SEEN_KEY = 'terra_messages_seen_at';
@@ -27,17 +27,20 @@ let propertiesPromise = null;
 export async function getProperties() {
   if (propertiesCache) return propertiesCache;
   if (!propertiesPromise) {
-    propertiesPromise = supabase.from('properties').select('*').order('id').then(({ data, error }) => {
-      propertiesPromise = null;
-      if (error) { console.error(error); return []; }
-      propertiesCache = data.map(mapProperty);
-      return propertiesCache;
-    });
+    propertiesPromise = getSupabase()
+      .then((sb) => sb.from('properties').select('*').order('id'))
+      .then(({ data, error }) => {
+        propertiesPromise = null;
+        if (error) { console.error(error); return []; }
+        propertiesCache = data.map(mapProperty);
+        return propertiesCache;
+      });
   }
   return propertiesPromise;
 }
 
 export async function addProperty(fields) {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('properties').insert(unmapProperty(fields)).select().single();
   if (error) throw error;
   propertiesCache = null;
@@ -45,6 +48,7 @@ export async function addProperty(fields) {
 }
 
 export async function updateProperty(id, fields) {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('properties').update(unmapProperty(fields)).eq('id', id).select().single();
   if (error) throw error;
   propertiesCache = null;
@@ -52,6 +56,7 @@ export async function updateProperty(id, fields) {
 }
 
 export async function deleteProperty(id) {
+  const supabase = await getSupabase();
   const { error } = await supabase.from('properties').delete().eq('id', id);
   if (error) throw error;
   propertiesCache = null;
@@ -63,17 +68,20 @@ let agentsPromise = null;
 export async function getAgents() {
   if (agentsCache) return agentsCache;
   if (!agentsPromise) {
-    agentsPromise = supabase.from('agents').select('*').order('id').then(({ data, error }) => {
-      agentsPromise = null;
-      if (error) { console.error(error); return []; }
-      agentsCache = data;
-      return agentsCache;
-    });
+    agentsPromise = getSupabase()
+      .then((sb) => sb.from('agents').select('*').order('id'))
+      .then(({ data, error }) => {
+        agentsPromise = null;
+        if (error) { console.error(error); return []; }
+        agentsCache = data;
+        return agentsCache;
+      });
   }
   return agentsPromise;
 }
 
 export async function addAgent(fields) {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('agents').insert(fields).select().single();
   if (error) throw error;
   agentsCache = null;
@@ -81,6 +89,7 @@ export async function addAgent(fields) {
 }
 
 export async function updateAgent(id, fields) {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('agents').update(fields).eq('id', id).select().single();
   if (error) throw error;
   agentsCache = null;
@@ -88,6 +97,7 @@ export async function updateAgent(id, fields) {
 }
 
 export async function deleteAgent(id) {
+  const supabase = await getSupabase();
   const { error } = await supabase.from('agents').delete().eq('id', id);
   if (error) throw error;
   agentsCache = null;
@@ -107,12 +117,14 @@ const mapMessage = (row) => ({
 });
 
 export async function getMessages() {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
   if (error) { console.error(error); return []; }
   return data.map(mapMessage);
 }
 
 export async function addMessage(fields) {
+  const supabase = await getSupabase();
   const { error } = await supabase.from('messages').insert({
     first_name: fields.firstName,
     last_name: fields.lastName,
@@ -128,12 +140,14 @@ export async function addMessage(fields) {
 }
 
 export async function deleteMessage(id) {
+  const supabase = await getSupabase();
   const { error } = await supabase.from('messages').delete().eq('id', id);
   if (error) throw error;
 }
 
 export async function getUnreadMessagesCount() {
   const seenAt = new Date(Number(localStorage.getItem(MSGS_SEEN_KEY) || 0)).toISOString();
+  const supabase = await getSupabase();
   const { count, error } = await supabase.from('messages').select('*', { count: 'exact', head: true }).gt('created_at', seenAt);
   if (error) { console.error(error); return 0; }
   return count || 0;
@@ -146,6 +160,7 @@ export function markMessagesSeen() {
 
 export async function getFavorites(userId) {
   if (!userId) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('favorites').select('property_id').eq('user_id', userId);
   if (error) { console.error(error); return []; }
   return data.map(r => r.property_id);
@@ -153,6 +168,7 @@ export async function getFavorites(userId) {
 
 export async function toggleFavorite(userId, propertyId, current) {
   if (!userId) return [];
+  const supabase = await getSupabase();
   const isFavorited = current.includes(propertyId);
   const { error } = isFavorited
     ? await supabase.from('favorites').delete().eq('user_id', userId).eq('property_id', propertyId)
@@ -164,24 +180,28 @@ export async function toggleFavorite(userId, propertyId, current) {
 const mapSubscriber = (row) => ({ id: row.id, email: row.email, date: row.created_at });
 
 export async function getSubscribers() {
+  const supabase = await getSupabase();
   const { data, error } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
   if (error) { console.error(error); return []; }
   return data.map(mapSubscriber);
 }
 
 export async function addSubscriber(email) {
+  const supabase = await getSupabase();
   const { error } = await supabase.from('subscribers').insert({ email });
   if (error && error.code !== '23505') throw error; // ignore duplicate email
   window.dispatchEvent(new Event('subscribersUpdated'));
 }
 
 export async function deleteSubscriber(id) {
+  const supabase = await getSupabase();
   const { error } = await supabase.from('subscribers').delete().eq('id', id);
   if (error) throw error;
 }
 
 export async function getUnreadSubscribersCount() {
   const seenAt = new Date(Number(localStorage.getItem(SUBS_SEEN_KEY) || 0)).toISOString();
+  const supabase = await getSupabase();
   const { count, error } = await supabase.from('subscribers').select('*', { count: 'exact', head: true }).gt('created_at', seenAt);
   if (error) { console.error(error); return 0; }
   return count || 0;
@@ -198,6 +218,7 @@ export function markSubscribersSeen() {
 // by admins (enforced by Supabase RLS).
 
 export async function getMaintenanceMode() {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('app_settings')
     .select('maintenance_mode')
@@ -208,6 +229,7 @@ export async function getMaintenanceMode() {
 }
 
 export async function setMaintenanceMode(enabled) {
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('app_settings')
     .update({ maintenance_mode: enabled, updated_at: new Date().toISOString() })

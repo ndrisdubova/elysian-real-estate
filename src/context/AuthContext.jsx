@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { supabase } from '../utils/supabaseClient';
+import { getSupabase } from '../utils/supabaseClient';
 
 function generateAvatar(name, email) {
   const display = (name || email.split('@')[0]).trim();
@@ -18,16 +18,22 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setCurrentUser(toSessionUser(session?.user));
+    let active = true;
+    let subscription;
+    getSupabase().then((supabase) => {
+      if (!active) return;
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setCurrentUser(toSessionUser(session?.user));
+      });
+      subscription = supabase.auth.onAuthStateChange((_event, session) => {
+        setCurrentUser(toSessionUser(session?.user));
+      }).data.subscription;
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setCurrentUser(toSessionUser(session?.user));
-    });
-    return () => subscription.unsubscribe();
+    return () => { active = false; subscription?.unsubscribe(); };
   }, []);
 
   const registerUser = useCallback(async ({ name, email, password }) => {
+    const supabase = await getSupabase();
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -38,12 +44,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginUser = useCallback(async (email, password) => {
+    const supabase = await getSupabase();
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error) return { success: false, message: 'Invalid email or password.' };
     return { success: true, user: toSessionUser(data.user) };
   }, []);
 
   const logoutUser = useCallback(async () => {
+    const supabase = await getSupabase();
     await supabase.auth.signOut();
   }, []);
 

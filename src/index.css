@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Poppins:wght@300;400;600;700&display=swap');
-@import 'aos/dist/aos.css';
-@import 'swiper/css';
-@import 'swiper/css/pagination';
-
+/* Fonts are loaded via a <link> in index.html (non-blocking, discovered early)
+   rather than a render-blocking CSS @import. Swiper's CSS lives in the deferred
+   Testimonials component so it isn't in the always-loaded global stylesheet. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,6 +22,26 @@
 .animate-fade-up   { animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .animate-check-pop { animation: checkPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s both; }
 .animate-ring      { animation: ringPulse 0.7s ease-out 0.1s both; }
+
+/* Lightweight scroll-reveal — replaces the AOS library (~15KB gzip saved).
+   Elements marked [data-aos] start hidden/offset; the IntersectionObserver in
+   Home.jsx adds .aos-animate when they scroll into view. data-aos-delay is
+   applied as transition-delay in JS. */
+[data-aos] {
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-duration: 1s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+[data-aos="fade-up"]    { transform: translateY(40px); }
+[data-aos="fade-right"] { transform: translateX(-40px); }
+[data-aos="fade-left"]  { transform: translateX(40px); }
+[data-aos="zoom-in"]    { transform: scale(0.92); }
+[data-aos].aos-animate  { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
 
 html {
   /* Prevent the browser from auto-adjusting scroll position when images

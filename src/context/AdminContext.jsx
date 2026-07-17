@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../utils/supabaseClient';
+import { getSupabase } from '../utils/supabaseClient';
 
 const AdminContext = createContext(null);
 
@@ -10,7 +10,8 @@ const adminCheckCache = new Map();
 
 async function checkIsAdmin(userId) {
   if (!adminCheckCache.has(userId)) {
-    const request = supabase.from('profiles').select('is_admin').eq('id', userId).single()
+    const request = getSupabase()
+      .then((supabase) => supabase.from('profiles').select('is_admin').eq('id', userId).single())
       .then(({ data }) => !!data?.is_admin)
       .catch(() => false);
     adminCheckCache.set(userId, request);
@@ -24,20 +25,25 @@ export function AdminProvider({ children }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    
+    let active = true;
+    let subscription;
     let current = 0;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const request = ++current;
-      const admin = session?.user ? await checkIsAdmin(session.user.id) : false;
-      if (request !== current) return; // a newer auth event superseded this one
-      setIsAdmin(admin);
-      setReady(true);
+    getSupabase().then((supabase) => {
+      if (!active) return;
+      subscription = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const request = ++current;
+        const admin = session?.user ? await checkIsAdmin(session.user.id) : false;
+        if (request !== current) return; // a newer auth event superseded this one
+        setIsAdmin(admin);
+        setReady(true);
+      }).data.subscription;
     });
 
-    return () => subscription.unsubscribe();
+    return () => { active = false; subscription?.unsubscribe(); };
   }, []);
 
   const adminLogin = async (email, password) => {
+    const supabase = await getSupabase();
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error) return false;
     const admin = await checkIsAdmin(data.user.id);
@@ -50,6 +56,7 @@ export function AdminProvider({ children }) {
   };
 
   const adminLogout = async () => {
+    const supabase = await getSupabase();
     await supabase.auth.signOut();
     setIsAdmin(false);
   };

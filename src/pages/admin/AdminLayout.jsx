@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, Outlet, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Building2, Users, MessageSquare, Mail, Settings, LogOut, Menu, X, ChevronDown } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
-import { supabase } from '../../utils/supabaseClient';
+import { getSupabase } from '../../utils/supabaseClient';
 import {
   getAdminSettings, saveAdminSettings,
   getUnreadMessagesCount, markMessagesSeen,
@@ -48,17 +48,25 @@ export default function AdminLayout() {
     window.addEventListener('subscribersUpdated', refresh);
     window.addEventListener('storage', refresh);
 
-    const channel = supabase
-      .channel('admin-notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, refresh)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'subscribers' }, refresh)
-      .subscribe();
+    let active = true;
+    let channel;
+    let supabaseRef;
+    getSupabase().then((supabase) => {
+      if (!active) return; // unmounted before the client resolved
+      supabaseRef = supabase;
+      channel = supabase
+        .channel('admin-notifications')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, refresh)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'subscribers' }, refresh)
+        .subscribe();
+    });
 
     return () => {
+      active = false;
       window.removeEventListener('messagesUpdated', refresh);
       window.removeEventListener('subscribersUpdated', refresh);
       window.removeEventListener('storage', refresh);
-      supabase.removeChannel(channel);
+      if (channel && supabaseRef) supabaseRef.removeChannel(channel);
     };
   }, []);
 

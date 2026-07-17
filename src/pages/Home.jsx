@@ -1,27 +1,53 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AOS from 'aos';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination } from 'swiper/modules';
-import 'swiper/css/pagination';
-import { MapPin, Bed, Bath, Ruler, Key, Globe, Quote, ChevronUp } from 'lucide-react';
+import { MapPin, Bed, Bath, Ruler, Key, Globe, ChevronUp } from 'lucide-react';
 import Footer from '../components/Footer';
 import Chatbot from '../components/Chatbot';
 import Seo from '../components/Seo';
 
+const Testimonials = lazy(() => import('../components/Testimonials'));
+
+// Renders the (below-the-fold) testimonials slider only once it nears the
+// viewport, so Swiper is fetched on demand instead of in the initial Home chunk.
+function DeferredTestimonials({ items }) {
+  const [show, setShow] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) { setShow(true); observer.disconnect(); }
+    }, { rootMargin: '200px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className="min-h-[200px]">
+      {show && (
+        <Suspense fallback={null}>
+          <Testimonials items={items} />
+        </Suspense>
+      )}
+    </div>
+  );
+}
+
+// Optimized WebP versions of the template images, served locally from
+// public/images (17MB of PNGs -> ~0.7MB of WebP). Sources were downloaded from
+// the farazc60/Project-Images repo and converted at build-appropriate sizes.
 const IMAGES = {
-  hero: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/7.png',
-  p1: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/1.png',
-  p2: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/2.png',
-  p3: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/3.png',
-  service1: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/5.png',
-  service2: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/9.png',
-  a1: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/Kenji%20Tanaka.png',
-  a2: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/Isabella%20Rossi.png',
-  a3: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/Marcus%20Cole.png',
-  t1: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/Sarah%20Jenkins.png',
-  t2: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/David%20Lee.png',
-  t3: 'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/Emily%20Rodriguez.png',
+  hero: '/images/hero.webp',
+  p1: '/images/p1.webp',
+  p2: '/images/p2.webp',
+  p3: '/images/p3.webp',
+  service1: '/images/service1.webp',
+  service2: '/images/service2.webp',
+  a1: '/images/a1.webp',
+  a2: '/images/a2.webp',
+  a3: '/images/a3.webp',
+  t1: '/images/t1.webp',
+  t2: '/images/t2.webp',
+  t3: '/images/t3.webp',
 };
 
 const STATS = [
@@ -66,7 +92,18 @@ export default function Home() {
   const scrollBtnRef = useRef(null);
 
   useEffect(() => {
-    AOS.init({ duration: 1000, once: true, offset: 50 });
+    const els = document.querySelectorAll('[data-aos]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const delay = entry.target.getAttribute('data-aos-delay');
+        if (delay) entry.target.style.transitionDelay = `${delay}ms`;
+        entry.target.classList.add('aos-animate');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -271,38 +308,13 @@ export default function Home() {
             <h2 className="font-display text-4xl md:text-5xl font-bold text-charcoal mt-4">From Those We've Served</h2>
           </div>
           <div data-aos="fade-up">
-            <Swiper
-              className="testimonial-slider"
-              modules={[Autoplay, Pagination]}
-              loop
-              autoplay={{ delay: 5000, disableOnInteraction: false }}
-              pagination={{ clickable: true }}
-              breakpoints={{ 768: { slidesPerView: 2, spaceBetween: 30 } }}
-              spaceBetween={30}
-              slidesPerView={1}
-            >
-              {[
+            <DeferredTestimonials
+              items={[
                 { quote: '"Working with Terra was a revelation. Their attention to detail and market knowledge is simply unmatched."', name: 'Sarah & Tom Lawson', role: 'Buyers, Aspen Estate', img: IMAGES.t1 },
                 { quote: '"The marketing for our penthouse was breathtaking. Alexander and his team secured a record price. Truly exceptional."', name: 'David Chen', role: 'Seller, Park Ave Penthouse', img: IMAGES.t2 },
                 { quote: '"As an international buyer, I needed a team I could trust. Terra handled everything flawlessly."', name: 'Elena Rodriguez', role: 'Buyer, Miami Waterfront', img: IMAGES.t3 },
-              ].map((t, i) => (
-                <SwiperSlide key={i}>
-                  <div className="flex flex-col md:flex-row items-start">
-                    <Quote className="w-8 h-8 text-soft-gold/30 -ml-1 flex-shrink-0" fill="#C0A067" />
-                    <div className="md:ml-4">
-                      <p className="font-display text-2xl lg:text-3xl text-charcoal italic mb-6">{t.quote}</p>
-                      <div className="flex items-center">
-                        <img src={t.img} alt={t.name} loading="lazy" decoding="async" className="w-14 h-14 rounded-full object-cover" />
-                        <div className="ml-4">
-                          <h4 className="text-xl font-semibold text-charcoal">{t.name}</h4>
-                          <p className="text-charcoal/70">{t.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+              ]}
+            />
           </div>
         </div>
       </section>
