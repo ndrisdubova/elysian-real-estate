@@ -11,11 +11,13 @@ const DEFAULT_DESCRIPTION =
 const DEFAULT_IMAGE =
   'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/7.png';
 
-export default function Seo({ title, description, image, type = 'website', noindex = false }) {
+export default function Seo({ title, description, image, type = 'website', noindex = false, schema }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
   const desc = (description || DEFAULT_DESCRIPTION).replace(/\s+/g, ' ').trim().slice(0, 160);
   const img = image || DEFAULT_IMAGE;
   const url = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
+  // `schema` may be a single JSON-LD object or an array of them.
+  const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 
   return (
     <Helmet>
@@ -37,6 +39,11 @@ export default function Seo({ title, description, image, type = 'website', noind
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={desc} />
       <meta name="twitter:image" content={img} />
+
+      {/* JSON-LD structured data (per-page, e.g. a listing + breadcrumbs) */}
+      {schemas.map((s, i) => (
+        <script key={i} type="application/ld+json">{JSON.stringify(s)}</script>
+      ))}
     </Helmet>
   );
 }

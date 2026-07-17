@@ -142,6 +142,31 @@ export default function PropertyDetail() {
     }
   };
 
+  const num = (s) => parseInt(String(s), 10) || undefined;
+  const sizeVal = parseFloat(String(property.size).replace(/[^0-9.]/g, '')) || undefined;
+  const schemaType = { Apartment: 'Apartment', Penthouse: 'Apartment', Villa: 'House' }[property.type] || 'Residence';
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const listingSchema = {
+    '@context': 'https://schema.org',
+    '@type': schemaType,
+    name: property.title,
+    description: (property.description || '').slice(0, 300),
+    image: [property.img, ...(property.extraPhotos || []).filter(Boolean)],
+    numberOfRooms: num(property.beds),
+    numberOfBathroomsTotal: num(property.baths),
+    ...(sizeVal ? { floorSize: { '@type': 'QuantitativeValue', value: sizeVal, unitCode: 'MTK' } } : {}),
+    address: { '@type': 'PostalAddress', addressLocality: property.city, addressCountry: property.country },
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+      { '@type': 'ListItem', position: 2, name: 'Properties', item: `${origin}/properties` },
+      { '@type': 'ListItem', position: 3, name: property.title },
+    ],
+  };
+
   return (
     <div className="bg-[#f7f7f7] min-h-screen">
       <Seo
@@ -149,6 +174,7 @@ export default function PropertyDetail() {
         description={`${property.price} · ${property.beds} · ${property.baths} · ${property.size}. ${property.description || ''}`}
         image={property.img}
         type="article"
+        schema={[listingSchema, breadcrumbSchema]}
       />
       {/* Hero Image */}
       <div className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden">
