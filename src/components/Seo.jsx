@@ -5,17 +5,20 @@ import { Helmet } from 'react-helmet-async';
 // Twitter tags so pages rank distinctly and share with a proper preview.
 
 const SITE_NAME = 'Terra Estates';
+const SITE_URL = 'https://terra-realestate.vercel.app';
 const DEFAULT_TITLE = 'Terra Estates — Luxury Real Estate';
 const DEFAULT_DESCRIPTION =
   'Discover an exclusive collection of the world’s most prestigious properties. Terra Estates curates luxury homes, villas and penthouses across the globe.';
-const DEFAULT_IMAGE =
-  'https://raw.githubusercontent.com/farazc60/Project-Images/refs/heads/main/Elysian%20Real%20Estate%20Template/7.png';
+const DEFAULT_IMAGE = `${SITE_URL}/images/hero.webp`;
 
 export default function Seo({ title, description, image, type = 'website', noindex = false, schema }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
   const desc = (description || DEFAULT_DESCRIPTION).replace(/\s+/g, ' ').trim().slice(0, 160);
   const img = image || DEFAULT_IMAGE;
-  const url = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
+  // Prefer the fixed production origin for canonical/OG so crawlers get a stable
+  // absolute URL; fall back to the live origin during local dev/preview.
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  const url = `${SITE_URL}${path}`;
   // `schema` may be a single JSON-LD object or an array of them.
   const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 
