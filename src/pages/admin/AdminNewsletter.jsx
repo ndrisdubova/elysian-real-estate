@@ -27,7 +27,9 @@ export default function AdminNewsletter() {
           <p className="text-gray-400 dark:text-gray-500 text-sm">No subscribers yet. Newsletter sign-ups will appear here.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+        <>
+        {/* Desktop / tablet: table */}
+        <div className="hidden md:block bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -65,6 +67,30 @@ export default function AdminNewsletter() {
             </table>
           </div>
         </div>
+
+        {/* Mobile: cards */}
+        <div className="md:hidden space-y-3">
+          {subscribers.map(s => (
+            <div key={s.id} className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-white/10 p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[color-mix(in_srgb,var(--admin-accent)_15%,transparent)] flex items-center justify-center text-[var(--admin-accent)] flex-shrink-0">
+                <Mail className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{s.email}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              <button
+                onClick={() => handleDelete(s.id)}
+                className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+        </>
       )}
     </div>
   );

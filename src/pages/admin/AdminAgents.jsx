@@ -133,16 +133,16 @@ export default function AdminAgents() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-white/10">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-md my-4 sm:my-6 shadow-2xl">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-white/10">
               <h2 className="font-semibold text-gray-900 dark:text-white text-lg">{editId ? 'Edit Agent' : 'Add Agent'}</h2>
               <button onClick={() => setShowModal(false)} className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
                 <input {...field('name')} required className="w-full border border-gray-200 dark:border-white/10 dark:bg-[#0f0f0f] dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--admin-accent)] transition" />

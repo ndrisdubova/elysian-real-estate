@@ -72,7 +72,7 @@ export default function AdminMessages() {
                     <div
                       key={msg.id}
                       onClick={() => openMessage(msg)}
-                      className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer"
+                      className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer"
                     >
                       {msg.propertyImg ? (
                         <img
@@ -127,8 +127,8 @@ export default function AdminMessages() {
 
       {/* Message detail modal */}
       {selected && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-lg my-4 sm:my-6 shadow-2xl overflow-hidden">
 
             {/* Property banner (if property inquiry) */}
             {selected.propertyImg && (
@@ -146,7 +146,7 @@ export default function AdminMessages() {
               </div>
             )}
 
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <h2 className="font-semibold text-gray-900 dark:text-white">Message</h2>
                 {!selected.property && (
@@ -168,7 +168,7 @@ export default function AdminMessages() {
               </div>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-4 sm:p-6 space-y-5">
               {/* Sender info */}
               <div className="flex items-start gap-4">
                 <div className="w-11 h-11 rounded-full bg-[color-mix(in_srgb,var(--admin-accent)_15%,transparent)] flex items-center justify-center font-semibold text-[var(--admin-accent)] text-sm flex-shrink-0">
