@@ -175,7 +175,8 @@ export default function AdminProperties() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+      {/* Desktop / tablet: table */}
+      <div className="hidden md:block bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -220,18 +221,49 @@ export default function AdminProperties() {
         </div>
       </div>
 
+      {/* Mobile: cards */}
+      <div className="md:hidden space-y-3">
+        {properties.length === 0 ? (
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-white/10 text-center py-14 text-gray-400 dark:text-gray-500 text-sm">
+            No properties. Add one above.
+          </div>
+        ) : properties.map(p => (
+          <div key={p.id} className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-white/10 p-4 flex gap-4">
+            <img src={p.img} alt={p.title} className="w-20 h-20 object-cover rounded-xl flex-shrink-0 bg-gray-100 dark:bg-white/10" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-semibold text-gray-900 dark:text-white truncate">{p.title}</h3>
+                <span className="font-semibold text-gray-900 dark:text-white text-sm whitespace-nowrap">{p.price}</span>
+              </div>
+              <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                <span className="bg-[color-mix(in_srgb,var(--admin-accent)_10%,transparent)] text-[var(--admin-accent)] px-2.5 py-0.5 rounded-full text-xs font-medium">{p.type}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{p.city}, {p.country}</span>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <button onClick={() => openEdit(p)} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                  <Pencil className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button onClick={() => setDeleteId(p.id)} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-red-600 border border-red-200 dark:border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 transition">
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Add / Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-2xl my-6 shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-white/10">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-2xl my-4 sm:my-6 shadow-2xl">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-white/10">
               <h2 className="font-semibold text-gray-900 dark:text-white text-lg">{editId ? 'Edit Property' : 'Add Property'}</h2>
               <button onClick={() => setShowModal(false)} className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
@@ -268,7 +300,7 @@ export default function AdminProperties() {
               </div>
 
               {/* Row: beds + baths + size */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Beds</label>
                   <input {...field('beds')} placeholder="4 Beds" className="w-full border border-gray-200 dark:border-white/10 dark:bg-[#0f0f0f] dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--admin-accent)] transition" />
