@@ -22,10 +22,16 @@ export default function Chatbot() {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
+  // Load the catalogue (which pulls in the Supabase client) only once the user
+  // first opens the chat — not on every page load — so it doesn't compete with
+  // the hero/fonts on first paint, especially on mobile.
+  const dataLoaded = useRef(false);
   useEffect(() => {
+    if (!chatOpen || dataLoaded.current) return;
+    dataLoaded.current = true;
     getProperties().then(setProperties);
     getAgents().then(setAgents);
-  }, []);
+  }, [chatOpen]);
 
   // The "brain" — rebuilt whenever the catalogue changes. Runs 100% in-browser.
   const concierge = useMemo(
