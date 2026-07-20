@@ -159,3 +159,17 @@ create policy "app_settings writable by admins"
   on app_settings for update using (
     exists (select 1 from profiles where profiles.id = auth.uid() and profiles.is_admin = true)
   );
+
+-- ─── user_profiles (public profile: display name + avatar, editable by the user) ──
+-- Kept SEPARATE from `profiles` so users can freely edit their own row without
+-- any ability to touch the admin flag. Run this block once for the account page.
+create table if not exists user_profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  name text,
+  avatar text,           -- data URL (resized in the browser) or an image URL
+  updated_at timestamptz not null default now()
+);
+alter table user_profiles enable row level security;
+create policy "read own user_profile"   on user_profiles for select using (auth.uid() = id);
+create policy "insert own user_profile" on user_profiles for insert with check (auth.uid() = id);
+create policy "update own user_profile" on user_profiles for update using (auth.uid() = id) with check (auth.uid() = id);

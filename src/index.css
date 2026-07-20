@@ -479,6 +479,21 @@ header.scrolled {
   transition: background 0.2s ease, transform 0.2s ease;
 }
 .auth-logout-btn:hover { background: #C0A067; color: #1A1A1A; transform: translateY(-1px); }
+.auth-menu-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  border-radius: 9999px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1A1A1A;
+  border: 1px solid rgba(26,26,26,0.12);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+}
+.auth-menu-link:hover { background: #F5F5F5; color: #C0A067; transform: translateY(-1px); }
 
 /* Mobile auth */
 .auth-mobile-profile {

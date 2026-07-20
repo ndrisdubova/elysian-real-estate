@@ -237,6 +237,32 @@ export async function setMaintenanceMode(enabled) {
   if (error) throw error;
 }
 
+// --- user profile (display name + avatar for the logged-in visitor) ----------
+
+export async function getMyProfile(userId) {
+  if (!userId) return null;
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('name, avatar')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error) { console.error(error); return null; }
+  return data;
+}
+
+export async function upsertMyProfile(userId, fields) {
+  if (!userId) throw new Error('Not signed in');
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .upsert({ id: userId, ...fields, updated_at: new Date().toISOString() })
+    .select('name, avatar')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export function getAdminSettings() {
   try {
     const stored = localStorage.getItem(ADMIN_SETTINGS_KEY);

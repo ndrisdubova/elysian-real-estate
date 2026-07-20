@@ -18,6 +18,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const PropertyDetail = lazy(() => import('./pages/PropertyDetail'));
 const Saved = lazy(() => import('./pages/Saved'));
+const Account = lazy(() => import('./pages/Account'));
 const ChatbotInfo = lazy(() => import('./pages/ChatbotInfo'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
@@ -56,6 +57,7 @@ function Layout() {
           <Route path="/properties" element={<Properties />} />
           <Route path="/properties/:id" element={<PropertyDetail />} />
           <Route path="/saved" element={<Saved />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />

@@ -129,6 +129,9 @@ export default function Navbar() {
                         <p className="auth-profile-email">{currentUser.email}</p>
                       </div>
                     </div>
+                    <Link to="/account" className="auth-menu-link" onClick={() => setProfileOpen(false)}>
+                      My Account
+                    </Link>
                     <button className="auth-logout-btn" onClick={() => { logoutUser(); setProfileOpen(false); }}>
                       Logout
                     </button>
@@ -302,6 +305,7 @@ export default function Navbar() {
               <img src={currentUser.avatar} alt={currentUser.name} className="auth-mobile-profile-img" />
               <p className="auth-mobile-profile-name">{currentUser.name}</p>
               <p className="auth-mobile-profile-email">{currentUser.email}</p>
+              <Link to="/account" className="text-ivory/90 text-lg underline mt-2" onClick={() => setMenuOpen(false)}>My Account</Link>
               <button className="auth-mobile-logout-btn" onClick={() => { logoutUser(); setMenuOpen(false); }}>Logout</button>
             </div>
           ) : (
