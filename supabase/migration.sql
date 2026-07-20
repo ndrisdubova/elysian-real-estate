@@ -173,3 +173,18 @@ alter table user_profiles enable row level security;
 create policy "read own user_profile"   on user_profiles for select using (auth.uid() = id);
 create policy "insert own user_profile" on user_profiles for insert with check (auth.uid() = id);
 create policy "update own user_profile" on user_profiles for update using (auth.uid() = id) with check (auth.uid() = id);
+
+-- ─── delete_own_account (lets a signed-in user delete their OWN account) ──────
+-- SECURITY DEFINER runs as the function owner so it can remove the auth.users
+-- row; the `where id = auth.uid()` clause guarantees a user can only ever delete
+-- themselves. Deleting the auth row cascades to profiles / user_profiles / etc.
+create or replace function delete_own_account()
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  delete from auth.users where id = auth.uid();
+$$;
+revoke all on function delete_own_account() from public, anon;
+grant execute on function delete_own_account() to authenticated;

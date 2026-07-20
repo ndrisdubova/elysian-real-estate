@@ -42,10 +42,15 @@ export default function Account() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
 
+  const [current, setCurrent] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [savingPw, setSavingPw] = useState(false);
   const [pwMsg, setPwMsg] = useState('');
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteMsg, setDeleteMsg] = useState('');
 
   // Seed the form from the saved profile (falling back to the session values).
   useEffect(() => {
@@ -88,14 +93,22 @@ export default function Account() {
 
   const savePassword = async (e) => {
     e.preventDefault();
-    if (password.length < 6) { setPwMsg('Password must be at least 6 characters.'); return; }
-    if (password !== confirm) { setPwMsg('Passwords do not match.'); return; }
+    if (!current) { setPwMsg('Enter your current password.'); return; }
+    if (password.length < 6) { setPwMsg('New password must be at least 6 characters.'); return; }
+    if (password !== confirm) { setPwMsg('New passwords do not match.'); return; }
     setSavingPw(true);
     setPwMsg('');
     try {
       const supabase = await getSupabase();
+      // Verify the current password by re-authenticating before changing it.
+      const { error: verifyErr } = await supabase.auth.signInWithPassword({
+        email: currentUser.email,
+        password: current,
+      });
+      if (verifyErr) { setPwMsg('Current password is incorrect.'); setSavingPw(false); return; }
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
+      setCurrent('');
       setPassword('');
       setConfirm('');
       setPwMsg('saved');
@@ -103,6 +116,21 @@ export default function Account() {
       setPwMsg(err.message || 'Could not update password.');
     } finally {
       setSavingPw(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    setDeleting(true);
+    setDeleteMsg('');
+    try {
+      const supabase = await getSupabase();
+      const { error } = await supabase.rpc('delete_own_account');
+      if (error) throw error;
+      await supabase.auth.signOut();
+      navigate('/', { replace: true });
+    } catch (err) {
+      setDeleteMsg(err.message || 'Could not delete account. Did you run the delete_own_account function?');
+      setDeleting(false);
     }
   };
 
@@ -183,11 +211,15 @@ export default function Account() {
           {/* Password card */}
           <form onSubmit={savePassword} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <h2 className="font-display text-2xl text-charcoal mb-1">Change password</h2>
-            <p className="text-gray-500 text-sm mb-6">Leave blank if you don't want to change it.</p>
+            <p className="text-gray-500 text-sm mb-6">Enter your current password, then choose a new one.</p>
 
             <div>
+              <label className="block text-sm text-gray-600 mb-1.5">Current password</label>
+              <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} placeholder="••••••••" autoComplete="current-password" className={inputCls} />
+            </div>
+            <div className="mt-4">
               <label className="block text-sm text-gray-600 mb-1.5">New password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className={inputCls} />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="new-password" className={inputCls} />
             </div>
             <div className="mt-4">
               <label className="block text-sm text-gray-600 mb-1.5">Confirm new password</label>
@@ -210,12 +242,53 @@ export default function Account() {
             </div>
           </form>
 
+          {/* Danger zone */}
+          <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-6 md:p-8 mt-8">
+            <h2 className="font-display text-2xl text-red-600 mb-1">Delete account</h2>
+            <p className="text-gray-500 text-sm mb-6">Permanently delete your account and profile. This cannot be undone.</p>
+            <button
+              onClick={() => { setDeleteMsg(''); setConfirmDelete(true); }}
+              className="w-full sm:w-auto bg-red-500 text-white px-7 py-3 rounded-xl font-semibold hover:bg-red-600 transition"
+            >
+              Delete my account
+            </button>
+            {deleteMsg && <p className="text-red-500 text-sm mt-3">{deleteMsg}</p>}
+          </div>
+
           <div className="text-center mt-8">
             <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-soft-gold text-sm transition">← Back</button>
           </div>
         </div>
       </main>
       <Footer />
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl">
+            <h3 className="font-display text-2xl text-charcoal mb-2">Delete your account?</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              This permanently removes your account, profile photo and saved data. This cannot be undone.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="flex-1 order-2 sm:order-1 border border-gray-200 text-gray-600 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteAccount}
+                disabled={deleting}
+                className="flex-1 order-1 sm:order-2 bg-red-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-red-600 transition disabled:opacity-60"
+              >
+                {deleting ? 'Deleting…' : 'Yes, delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
