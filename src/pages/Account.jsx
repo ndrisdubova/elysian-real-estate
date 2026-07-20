@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Camera, X, Check } from 'lucide-react';
+import { Camera, X, Check, Link2, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getMyProfile, upsertMyProfile } from '../utils/storage';
 import { getSupabase } from '../utils/supabaseClient';
@@ -39,6 +39,7 @@ export default function Account() {
 
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [photoTab, setPhotoTab] = useState('upload'); // 'upload' | 'url'
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
 
@@ -150,7 +151,7 @@ export default function Account() {
 
           {/* Profile card */}
           <form onSubmit={saveProfile} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <div className="relative flex-shrink-0">
                 <img
                   src={avatar || currentUser.avatar}
@@ -159,18 +160,56 @@ export default function Account() {
                 />
                 <button
                   type="button"
-                  onClick={() => fileRef.current?.click()}
+                  onClick={() => { setPhotoTab('upload'); fileRef.current?.click(); }}
                   className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-soft-gold text-white flex items-center justify-center shadow-md hover:bg-dark-gold transition"
-                  aria-label="Change photo"
+                  aria-label="Upload photo"
                 >
                   <Camera className="w-4 h-4" />
                 </button>
                 <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
               </div>
-              <div className="text-center sm:text-left">
+
+              <div className="w-full text-center sm:text-left">
                 <p className="font-semibold text-charcoal text-lg">{name || currentUser.name}</p>
-                <p className="text-gray-500 text-sm">{currentUser.email}</p>
-                {avatar && avatar.startsWith('data:') && (
+                <p className="text-gray-500 text-sm mb-3">{currentUser.email}</p>
+
+                {/* Photo source: upload a file or paste an image URL */}
+                <div className="flex gap-2 justify-center sm:justify-start">
+                  <button
+                    type="button"
+                    onClick={() => setPhotoTab('upload')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${photoTab === 'upload' ? 'bg-soft-gold text-white border-soft-gold' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                  >
+                    <Upload className="w-3.5 h-3.5" /> Upload
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoTab('url')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${photoTab === 'url' ? 'bg-soft-gold text-white border-soft-gold' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" /> URL
+                  </button>
+                </div>
+
+                {photoTab === 'url' ? (
+                  <input
+                    type="url"
+                    value={avatar.startsWith('data:') ? '' : avatar}
+                    onChange={(e) => setAvatar(e.target.value)}
+                    placeholder="https://image-address.jpg"
+                    className={`${inputCls} mt-3`}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="mt-3 w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-500 hover:border-soft-gold transition"
+                  >
+                    <Upload className="w-4 h-4" /> {avatar ? 'Change image' : 'Choose image'}
+                  </button>
+                )}
+
+                {avatar && (
                   <button
                     type="button"
                     onClick={() => setAvatar('')}
