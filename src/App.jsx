@@ -40,7 +40,7 @@ function Layout() {
   // maintenance page. Admin routes always bypass so the team can toggle it off.
   const [maintenance, setMaintenance] = useState(false);
   useEffect(() => {
-    if (isAdmin) return; // admins never get gated
+    if (isAdmin) return; 
     getMaintenanceMode().then(setMaintenance);
   }, [isAdmin]);
 
@@ -63,7 +63,7 @@ function Layout() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* 404 */}
+          
           <Route path="*" element={<NotFound />} />
 
           {/* Admin */}

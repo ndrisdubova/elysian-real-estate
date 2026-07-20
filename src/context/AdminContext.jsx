@@ -30,12 +30,18 @@ export function AdminProvider({ children }) {
     let current = 0;
     getSupabase().then((supabase) => {
       if (!active) return;
-      subscription = supabase.auth.onAuthStateChange(async (_event, session) => {
-        const request = ++current;
-        const admin = session?.user ? await checkIsAdmin(session.user.id) : false;
-        if (request !== current) return; // a newer auth event superseded this one
-        setIsAdmin(admin);
-        setReady(true);
+      subscription = supabase.auth.onAuthStateChange((_event, session) => {
+        // Defer the admin check: supabase-js invokes this callback while holding
+        // its auth lock, and checkIsAdmin runs a query that needs the same lock —
+        // awaiting it here deadlocks. setTimeout escapes the lock context.
+        setTimeout(async () => {
+          if (!active) return;
+          const request = ++current;
+          const admin = session?.user ? await checkIsAdmin(session.user.id) : false;
+          if (request !== current) return; // a newer auth event superseded this one
+          setIsAdmin(admin);
+          setReady(true);
+        }, 0);
       }).data.subscription;
     });
 

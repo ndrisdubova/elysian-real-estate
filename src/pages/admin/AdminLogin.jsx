@@ -4,12 +4,14 @@ import { Lock, User } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 
 export default function AdminLogin() {
+
   const { adminLogin } = useAdmin();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +70,7 @@ export default function AdminLogin() {
               <p className="text-red-400 text-sm bg-red-400/10 px-4 py-2.5 rounded-lg">{error}</p>
             )}
 
-            <button
+            <button 
               type="submit"
               disabled={submitting}
               className="w-full bg-[#C0A067] text-black font-semibold py-3.5 rounded-xl hover:bg-[#a98952] transition text-sm mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
