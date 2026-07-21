@@ -5,7 +5,7 @@ import { useAdmin } from '../../context/AdminContext';
 import { getSupabase } from '../../utils/supabaseClient';
 import {
   getAdminSettings, saveAdminSettings,
-  getUnreadMessagesCount, markMessagesSeen,
+  getUnreadMessagesCount,
   getUnreadSubscribersCount, markSubscribersSeen,
 } from '../../utils/storage';
 
@@ -71,7 +71,8 @@ export default function AdminLayout() {
   }, []);
 
   useEffect(() => {
-    if (location.pathname === '/admin/messages') markMessagesSeen();
+    // Messages badge is now driven by each message's read flag (marked when
+    // opened), so visiting the page no longer clears it wholesale.
     if (location.pathname === '/admin/newsletter') markSubscribersSeen();
   }, [location.pathname]);
 

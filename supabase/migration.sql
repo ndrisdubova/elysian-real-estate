@@ -188,3 +188,11 @@ as $$
 $$;
 revoke all on function delete_own_account() from public, anon;
 grant execute on function delete_own_account() to authenticated;
+
+-- ─── messages.read (per-message read/unread status for the admin inbox) ───────
+-- New messages arrive unread (default false). Existing ones are marked read so
+-- the inbox starts from a clean slate rather than a wall of "unread".
+alter table messages add column if not exists read boolean not null default false;
+update messages set read = true where read = false;
+-- Admins need UPDATE (the table only had insert/select/delete) to flip read state.
+create policy "admin update" on messages for update using (is_admin()) with check (is_admin());

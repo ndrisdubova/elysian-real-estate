@@ -1,7 +1,6 @@
 import { getSupabase } from './supabaseClient';
 
 const ADMIN_SETTINGS_KEY = 'terra_admin_settings';
-const MSGS_SEEN_KEY = 'terra_messages_seen_at';
 const SUBS_SEEN_KEY = 'terra_subscribers_seen_at';
 const DEFAULT_ADMIN_SETTINGS = { accentColor: '#C0A067', theme: 'light' };
 
@@ -114,6 +113,7 @@ const mapMessage = (row) => ({
   property: row.property,
   propertyImg: row.property_img,
   date: row.created_at,
+  read: !!row.read,
 });
 
 export async function getMessages() {
@@ -146,15 +146,23 @@ export async function deleteMessage(id) {
 }
 
 export async function getUnreadMessagesCount() {
-  const seenAt = new Date(Number(localStorage.getItem(MSGS_SEEN_KEY) || 0)).toISOString();
   const supabase = await getSupabase();
-  const { count, error } = await supabase.from('messages').select('*', { count: 'exact', head: true }).gt('created_at', seenAt);
+  const { count, error } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('read', false);
   if (error) { console.error(error); return 0; }
   return count || 0;
 }
 
-export function markMessagesSeen() {
-  localStorage.setItem(MSGS_SEEN_KEY, Date.now().toString());
+export async function markMessageRead(id, read = true) {
+  const supabase = await getSupabase();
+  const { error } = await supabase.from('messages').update({ read }).eq('id', id);
+  if (error) throw error;
+  window.dispatchEvent(new Event('messagesUpdated'));
+}
+
+export async function markAllMessagesRead() {
+  const supabase = await getSupabase();
+  const { error } = await supabase.from('messages').update({ read: true }).eq('read', false);
+  if (error) throw error;
   window.dispatchEvent(new Event('messagesUpdated'));
 }
 
