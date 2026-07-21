@@ -21,6 +21,93 @@
     <link rel="preload" as="image" type="image/webp" fetchpriority="high"
       href="/images/hero.webp" />
     <title>Terra Estates - Luxury Real Estate</title>
+
+    <!-- Instant splash screen: inline so it paints before the JS bundle loads.
+         A gold house emblem draws itself, then the TERRA wordmark fades up
+         beneath it. Removed by src/main.jsx once React mounts. -->
+    <style>
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.4rem;
+        background: radial-gradient(130% 130% at 50% 35%, #1c1c1c 0%, #0e0e0e 55%, #060606 100%);
+        opacity: 1;
+        transition: opacity 0.6s ease;
+      }
+      #app-splash.is-hiding { opacity: 0; pointer-events: none; }
+
+      .emblem {
+        width: clamp(120px, 34vw, 170px);
+        height: clamp(120px, 34vw, 170px);
+        overflow: visible;
+        filter: drop-shadow(0 0 10px rgba(192, 160, 103, 0.35));
+        animation: emblem-float 3.6s ease-in-out 1.6s infinite;
+      }
+      .emblem [pathLength] {
+        fill: none;
+        stroke: #C0A067;
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: emblem-draw 1s ease forwards;
+      }
+      .emblem .ring  { stroke-width: 1.6; animation-duration: 1.1s; animation-delay: 0s; }
+      .emblem .roof  { animation-delay: 0.55s; }
+      .emblem .body  { animation-delay: 0.85s; }
+      .emblem .door  { animation-delay: 1.15s; }
+      /* Soft fill glows in once the outline is drawn */
+      .emblem .house-fill {
+        fill: rgba(192, 160, 103, 0.10);
+        stroke: none;
+        opacity: 0;
+        animation: emblem-fill 0.9s ease 1.35s forwards;
+      }
+
+      /* TERRA wordmark — fades up once the house has finished drawing */
+      .brandword {
+        font-family: "Playfair Display", Georgia, serif;
+        font-weight: 700;
+        font-size: clamp(1.7rem, 6.5vw, 2.6rem);
+        letter-spacing: 0.36em;
+        text-indent: 0.36em;
+        line-height: 1;
+        background: linear-gradient(100deg, #8a6d34 0%, #f0dba6 45%, #C0A067 55%, #8a6d34 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        opacity: 0;
+        animation:
+          word-in 0.7s ease 1.6s forwards,
+          word-shimmer 3s linear 2.3s infinite;
+      }
+
+      @keyframes emblem-draw  { to { stroke-dashoffset: 0; } }
+      @keyframes emblem-fill  { to { opacity: 1; } }
+      @keyframes emblem-float {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-12px); }
+      }
+      @keyframes word-in {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes word-shimmer { to { background-position: 200% center; } }
+      @media (prefers-reduced-motion: reduce) {
+        .emblem { animation: none; }
+        .emblem [pathLength] { stroke-dashoffset: 0; animation: none; }
+        .emblem .house-fill { opacity: 1; animation: none; }
+        .brandword { opacity: 1; animation: none; }
+      }
+    </style>
     <meta name="description" content="Terra Estates curates the world's most prestigious properties — luxury homes, villas and penthouses in the finest locations." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Terra Estates" />
@@ -67,14 +154,24 @@
         "url": "https://terra-realestate.vercel.app"
       }
     </script>
-    <script type="module" crossorigin src="/assets/index-4WGWtpLS.js"></script>
+    <script type="module" crossorigin src="/assets/index-DvBVqqyR.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-bzQ4Vb5N.js">
     <link rel="modulepreload" crossorigin href="/assets/preload-helper-CZgWQFsJ.js">
     <link rel="modulepreload" crossorigin href="/assets/supabaseClient-DZcPi1is.js">
     <link rel="modulepreload" crossorigin href="/assets/storage-vfa9m1fm.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-DOV6dqii.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-C4qbT4HC.css">
   </head>
   <body>
+    <div id="app-splash">
+      <svg class="emblem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Terra Estates">
+        <path class="house-fill" d="M28 50 L50 32 L72 50 L72 74 L28 74 Z" />
+        <circle class="ring" cx="50" cy="50" r="42" pathLength="1" />
+        <path class="roof" d="M26 52 L50 33 L74 52" pathLength="1" />
+        <path class="body" d="M32 51 L32 74 L68 74 L68 51" pathLength="1" />
+        <path class="door" d="M44 74 L44 61 L56 61 L56 74" pathLength="1" />
+      </svg>
+      <div class="brandword">TERRA</div>
+    </div>
     <div id="root"></div>
   </body>
 </html>

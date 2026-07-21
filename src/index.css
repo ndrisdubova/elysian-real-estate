@@ -23,6 +23,17 @@
 .animate-check-pop { animation: checkPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s both; }
 .animate-ring      { animation: ringPulse 0.7s ease-out 0.1s both; }
 
+/* Page transition — plays each time the router mounts a new page. No fill mode,
+   so no transform lingers afterwards (which would break position:fixed children). */
+@keyframes routeEnter {
+  from { opacity: 0; transform: translateY(28px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.route-transition { animation: routeEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .route-transition { animation: none; }
+}
+
 /* Lightweight scroll-reveal — replaces the AOS library (~15KB gzip saved).
    Elements marked [data-aos] start hidden/offset; the IntersectionObserver in
    Home.jsx adds .aos-animate when they scroll into view. data-aos-delay is
