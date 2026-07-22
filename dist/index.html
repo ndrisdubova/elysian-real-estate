@@ -11,10 +11,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" />
 
-    <!-- Load fonts via a HEAD <link> (discovered immediately) instead of a CSS
-         @import (discovered only after index.css downloads, then blocks render). -->
+    <!-- Load fonts NON-render-blocking. A plain <link rel="stylesheet"> to a
+         third-party host blocks the FIRST paint of the whole document (even the
+         inline splash below) until Google responds — so on a slow or throttled
+         connection the visitor sees a blank white screen and thinks the site
+         "won't start". Loading it as media="print" then swapping to "all" onload
+         lets the page paint immediately; the fonts swap in when they arrive. The
+         <noscript> keeps fonts working when JS is disabled. -->
     <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Poppins:wght@300;400;600;700&display=swap" />
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Poppins:wght@300;400;600;700&display=swap"
+      media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Poppins:wght@300;400;600;700&display=swap" />
+    </noscript>
 
     <!-- Preload the homepage hero (local optimized WebP) so it starts
          downloading before the JS bundle -->
@@ -154,7 +164,7 @@
         "url": "https://terra-realestate.vercel.app"
       }
     </script>
-    <script type="module" crossorigin src="/assets/index-CVm3x_bh.js"></script>
+    <script type="module" crossorigin src="/assets/index-e1DFl2wb.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-bzQ4Vb5N.js">
     <link rel="modulepreload" crossorigin href="/assets/preload-helper-CZgWQFsJ.js">
     <link rel="modulepreload" crossorigin href="/assets/storage-D2eEk37W.js">
@@ -172,5 +182,26 @@
       <div class="brandword">TERRA</div>
     </div>
     <div id="root"></div>
+
+    <!-- Failsafe: if the app bundle fails to download (flaky mobile network),
+         main.jsx never runs and the splash would otherwise spin forever. This
+         inline script lives in the HTML itself, so it works even when the module
+         never loads: if React hasn't mounted after 12s, show a friendly retry
+         prompt instead of leaving the visitor on a dead loading screen. -->
+    <script>
+      (function () {
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          var splash = document.getElementById('app-splash');
+          if (!splash || (root && root.childElementCount > 0)) return;
+          splash.innerHTML =
+            '<div style="color:#C0A067;font-family:Georgia,serif;text-align:center;padding:2rem;max-width:22rem">' +
+            '<p style="font-size:1.15rem;margin-bottom:1.25rem;letter-spacing:.02em">Having trouble loading Terra Estates.</p>' +
+            '<button onclick="location.reload()" style="background:#C0A067;color:#0e0e0e;border:0;border-radius:999px;padding:.7rem 1.6rem;font-size:1rem;font-weight:700;cursor:pointer">Reload</button>' +
+            '<p style="opacity:.6;font-size:.8rem;margin-top:1rem">Check your internet connection and try again.</p>' +
+            '</div>';
+        }, 12000);
+      })();
+    </script>
   </body>
 </html>
