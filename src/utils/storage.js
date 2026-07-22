@@ -306,6 +306,39 @@ export function getViewCounts() {
   }
 }
 
+// --- admin login lockout (server-side brute-force guard) ---------------------
+// Backed by the admin_login_attempts table + SECURITY DEFINER RPCs defined in
+// supabase/admin_lockout.sql. The counter lives in the DB (not the browser) so
+// it can't be cleared by wiping localStorage and is shared across devices.
+// Each returns { locked, lockUntil } where lockUntil is an epoch-ms timestamp.
+
+function toLockState(row) {
+  const lockUntil = row?.lock_until ? new Date(row.lock_until).getTime() : 0;
+  return { locked: lockUntil > Date.now(), lockUntil };
+}
+
+export async function getAdminLockout(email) {
+  if (!email) return { locked: false, lockUntil: 0 };
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.rpc('get_admin_lockout', { p_email: email });
+  if (error) { console.error(error); return { locked: false, lockUntil: 0 }; }
+  return toLockState(Array.isArray(data) ? data[0] : data);
+}
+
+export async function recordAdminLoginFailure(email) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.rpc('record_admin_login_failure', { p_email: email });
+  if (error) { console.error(error); return { locked: false, lockUntil: 0 }; }
+  return toLockState(Array.isArray(data) ? data[0] : data);
+}
+
+export async function clearAdminLockout(email) {
+  if (!email) return;
+  const supabase = await getSupabase();
+  const { error } = await supabase.rpc('clear_admin_lockout', { p_email: email });
+  if (error) console.error(error);
+}
+
 export function getAdminSettings() {
   try {
     const stored = localStorage.getItem(ADMIN_SETTINGS_KEY);
