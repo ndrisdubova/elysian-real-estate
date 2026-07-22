@@ -48,17 +48,23 @@ export function AdminProvider({ children }) {
     return () => { active = false; subscription?.unsubscribe(); };
   }, []);
 
+  // Returns { ok, reason } so the login screen can tell a wrong password apart
+  // from Supabase's own auth rate-limit (which otherwise looks identical and was
+  // being reported as "invalid credentials", even for a correct password).
   const adminLogin = async (email, password) => {
     const supabase = await getSupabase();
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error) return false;
+    if (error) {
+      const rateLimited = error.status === 429 || /rate limit/i.test(error.message || '');
+      return { ok: false, reason: rateLimited ? 'ratelimited' : 'invalid' };
+    }
     const admin = await checkIsAdmin(data.user.id);
     if (!admin) {
       await supabase.auth.signOut();
-      return false;
+      return { ok: false, reason: 'notadmin' };
     }
     setIsAdmin(true);
-    return true;
+    return { ok: true };
   };
 
   const adminLogout = async () => {

@@ -69,11 +69,19 @@ export default function AdminLogin() {
       return;
     }
 
-    const ok = await adminLogin(username, password);
-    if (ok) {
+    const result = await adminLogin(username, password);
+    if (result.ok) {
       await clearAdminLockout(username);
       localStorage.removeItem(LAST_EMAIL_KEY);
       navigate('/admin/dashboard');
+      return;
+    }
+
+    // A rate-limit / network error isn't a wrong password — don't count it
+    // toward the lockout, and say so plainly instead of "invalid credentials".
+    if (result.reason === 'ratelimited') {
+      setError('Too many attempts right now. Please wait a minute and try again.');
+      setSubmitting(false);
       return;
     }
 
