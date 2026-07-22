@@ -5,10 +5,46 @@ import NewsletterForm from '../components/NewsletterForm';
 import Chatbot from '../components/Chatbot';
 import Seo from '../components/Seo';
 
+// "Ndris Dubova" -> "ND". Falls back to the first letter, then a dash.
+function initials(name = '') {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '—';
+  return parts.slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
+
+// Shows the agent's photo when one is set (and loads); otherwise a tidy
+// initials monogram so photo-less agents still look intentional.
+function AgentAvatar({ name, img, size }) {
+  const [failed, setFailed] = useState(false);
+  const box = `${size} rounded-full mx-auto mb-4`;
+  if (img && !failed) {
+    return (
+      <img
+        className={`${box} object-cover`}
+        src={img}
+        alt={name}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+  return (
+    <div
+      className={`${box} flex items-center justify-center bg-gradient-to-br from-[#C0A067] to-[#a5824d] text-white font-display tracking-wide select-none`}
+      role="img"
+      aria-label={name || 'Agent'}
+    >
+      {initials(name)}
+    </div>
+  );
+}
+
 export default function Agents() {
   const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { getAgents().then(setAgents); }, []);
+  useEffect(() => { getAgents().then(a => { setAgents(a); setLoading(false); }); }, []);
 
   const founders = agents.filter(a => a.type === 'founder');
   const experts = agents.filter(a => a.type === 'expert');
@@ -30,16 +66,22 @@ export default function Agents() {
       
       <section className="max-w-6xl mx-auto px-6 py-20">
         <h3 className="font-display text-4xl text-center">Our Founders</h3>
-        <div className="grid md:grid-cols-2 gap-10 mt-12">
-          {founders.map(f => (
-            <div key={f.id} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
-              <img className="rounded-full mx-auto mb-4 w-28 h-28 object-cover" src={f.img} alt={f.name} loading="lazy" decoding="async" />
-              <h4 className="font-bold text-lg">{f.name}</h4>
-              <p className="text-gray-600">{f.role}</p>
-              <p className="text-sm text-gray-500 mt-2">{f.bio}</p>
-            </div>
-          ))}
-        </div>
+        {founders.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-10 mt-12">
+            {founders.map(f => (
+              <div key={f.id} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+                <AgentAvatar name={f.name} img={f.img} size="w-28 h-28 text-3xl" />
+                <h4 className="font-bold text-lg">{f.name}</h4>
+                <p className="text-gray-600">{f.role}</p>
+                <p className="text-sm text-gray-500 mt-2">{f.bio}</p>
+              </div>
+            ))}
+          </div>
+        ) : !loading ? (
+          <p className="text-center text-gray-500 mt-12 text-lg">
+            {agents.length === 0 ? 'There are no agents at the moment. Please check back soon.' : 'No founders listed yet.'}
+          </p>
+        ) : null}
       </section>
 
       {/* Experts */}
@@ -56,15 +98,19 @@ export default function Agents() {
             <img className="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80" alt="Team" loading="lazy" decoding="async" />
           </div>
         </div>
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 mt-16">
-          {experts.map(e => (
-            <div key={e.id} className="p-6 bg-gray-50 rounded-xl shadow hover:shadow-lg transition text-center">
-              <img className="w-20 h-20 rounded-full mx-auto mb-4 object-cover" src={e.img} alt={e.name} loading="lazy" decoding="async" />
-              <h4 className="font-bold">{e.name}</h4>
-              <p className="text-gray-600">{e.role}</p>
-            </div>
-          ))}
-        </div>
+        {experts.length > 0 ? (
+          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 mt-16">
+            {experts.map(e => (
+              <div key={e.id} className="p-6 bg-gray-50 rounded-xl shadow hover:shadow-lg transition text-center">
+                <AgentAvatar name={e.name} img={e.img} size="w-20 h-20 text-2xl" />
+                <h4 className="font-bold">{e.name}</h4>
+                <p className="text-gray-600">{e.role}</p>
+              </div>
+            ))}
+          </div>
+        ) : !loading && agents.length > 0 ? (
+          <p className="max-w-6xl mx-auto text-center text-gray-500 mt-16 text-lg">No experts listed yet.</p>
+        ) : null}
       </section>
 
       {/* Why Stand Out */}

@@ -23,6 +23,7 @@ function PropertyCardImage({ images, alt }) {
 
 export default function Properties() {
   const [allProperties, setAllProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
@@ -32,7 +33,7 @@ export default function Properties() {
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    getProperties().then(setAllProperties);
+    getProperties().then(list => { setAllProperties(list); setLoading(false); });
   }, []);
 
   const handleToggleFav = (e, id) => {
@@ -113,8 +114,16 @@ export default function Properties() {
       {/* Properties Grid */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 pb-12 md:pb-24">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-          {filtered.length === 0 ? (
-            <p className="col-span-3 text-center text-gray-500 py-16 text-lg">No properties match your filters.</p>
+          {loading ? (
+            <div className="col-span-full flex justify-center py-24">
+              <div className="w-10 h-10 border-2 border-gray-200 border-t-charcoal rounded-full animate-spin" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <p className="col-span-full text-center text-gray-500 py-16 text-lg">
+              {allProperties.length === 0
+                ? 'There are no properties at the moment. Please check back soon.'
+                : 'No properties match your filters.'}
+            </p>
           ) : filtered.map(p => (
             <div key={p.id} className="property-card bg-white rounded-2xl overflow-hidden shadow-lg">
               <div className="relative">

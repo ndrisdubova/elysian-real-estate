@@ -20,6 +20,7 @@ const PropertyDetail = lazy(() => import('./pages/PropertyDetail'));
 const Saved = lazy(() => import('./pages/Saved'));
 const Account = lazy(() => import('./pages/Account'));
 const ChatbotInfo = lazy(() => import('./pages/ChatbotInfo'));
+const Blog = lazy(() => import('./pages/Blog'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -72,6 +73,7 @@ function AnimatedRoutes({ isAdmin, pathname }) {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/chatbot-info" element={<ChatbotInfo />} />
+      <Route path="/blog" element={<Blog />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 

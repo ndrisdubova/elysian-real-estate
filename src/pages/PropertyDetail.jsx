@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { MapPin, Bed, Bath, Ruler, ArrowLeft, CheckCircle, X, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
-import { getProperties, addMessage } from '../utils/storage';
+import { getProperties, addMessage, trackPropertyView } from '../utils/storage';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
 import Toast from '../components/Toast';
@@ -84,6 +84,11 @@ export default function PropertyDetail() {
   const allPhotos = property ? [property.img, ...(property.extraPhotos || []).filter(Boolean)] : [];
 
   useEffect(() => { setHeroIndex(0); }, [property?.id]);
+
+  // Count a view once the property resolves — feeds the Blog "most viewed" ranking.
+  useEffect(() => {
+    if (property?.id != null) trackPropertyView(property.id);
+  }, [property?.id]);
 
   useEffect(() => {
     if (allPhotos.length < 2) return;

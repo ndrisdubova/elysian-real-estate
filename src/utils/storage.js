@@ -271,6 +271,41 @@ export async function upsertMyProfile(userId, fields) {
   return data;
 }
 
+// --- property view tracking (powers the Blog's "most viewed" ranking) --------
+// Views are currently counted per-browser in localStorage, so the Blog works
+// with zero backend setup. To make the ranking GLOBAL across all visitors,
+// create this table + RPC in Supabase and swap the two bodies below to await it:
+//
+//   create table property_views (property_id bigint primary key, count int default 0);
+//   create function increment_property_view(pid bigint) returns void as $$
+//     insert into property_views (property_id, count) values (pid, 1)
+//     on conflict (property_id) do update set count = property_views.count + 1;
+//   $$ language sql;
+//
+// Then: trackPropertyView -> supabase.rpc('increment_property_view',{pid:id})
+//       getViewCounts     -> select property_id,count from property_views
+// The Blog page consumes getViewCounts() and never needs to change.
+
+const VIEWS_KEY = 'terra_property_views';
+
+export function trackPropertyView(id) {
+  if (id == null) return;
+  try {
+    const views = JSON.parse(localStorage.getItem(VIEWS_KEY) || '{}');
+    views[id] = (views[id] || 0) + 1;
+    localStorage.setItem(VIEWS_KEY, JSON.stringify(views));
+  } catch { /* ignore quota / disabled storage */ }
+}
+
+// Returns a { [propertyId]: viewCount } map.
+export function getViewCounts() {
+  try {
+    return JSON.parse(localStorage.getItem(VIEWS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
 export function getAdminSettings() {
   try {
     const stored = localStorage.getItem(ADMIN_SETTINGS_KEY);

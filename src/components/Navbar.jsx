@@ -101,7 +101,7 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex space-x-8 items-center">
-            {[['/', 'Home'], ['/properties', 'Properties'], ['/agents', 'Agents'], ['/about', 'About']].map(([path, label]) => (
+            {[['/', 'Home'], ['/properties', 'Properties'], ['/agents', 'Agents'], ['/blog', 'Journal'], ['/about', 'About']].map(([path, label]) => (
               <Link
                 key={path}
                 to={path}
@@ -283,7 +283,7 @@ export default function Navbar() {
       {/* Full-screen Nav Overlay */}
       <div className={`nav-overlay fixed inset-0 bg-charcoal z-[55] overflow-y-auto overscroll-contain ${menuOpen ? 'open' : ''}`}>
         <div className="min-h-full flex flex-col items-center justify-center gap-6 sm:gap-8 py-24 px-6">
-          {[['/', 'Home'], ['/properties', 'Properties'], ['/agents', 'Agents'], ['/about', 'About'], ['/contact', 'Contact']].map(([path, label]) => (
+          {[['/', 'Home'], ['/properties', 'Properties'], ['/agents', 'Agents'], ['/blog', 'Journal'], ['/about', 'About'], ['/contact', 'Contact']].map(([path, label]) => (
             <Link key={path} to={path} className="text-ivory text-3xl sm:text-4xl font-display" onClick={() => setMenuOpen(false)}>
               {label}
             </Link>
